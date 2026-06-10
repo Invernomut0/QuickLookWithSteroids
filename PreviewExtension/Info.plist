@@ -53,15 +53,26 @@
 				<string>com.bittorrent.torrent</string>
 				<string>public.x509-certificate</string>
 				<string>public.truetype-font</string>
+				<string>public.truetype-ttf-font</string>
 				<string>public.opentype-font</string>
 				<string>com.omnipreview.woff</string>
 				<string>public.png</string>
 				<string>public.mpeg-4</string>
 				<string>com.apple.quicktime-movie</string>
+				<string>public.avi</string>
+				<string>public.mp3</string>
+				<string>com.apple.m4a-audio</string>
+				<string>com.microsoft.waveform-audio</string>
+				<string>org.xiph.flac</string>
+				<string>org.xiph.ogg-audio</string>
+				<string>org.webmproject.webm</string>
 				<string>public.heic</string>
 				<string>public.heif</string>
 				<string>public.webp</string>
 				<string>org.webmproject.webp</string>
+				<string>public.avif</string>
+				<string>com.apple.icns</string>
+				<string>com.microsoft.ico</string>
 				<string>public.yaml</string>
 				<string>com.apple.disk-image-udif</string>
 				<string>public.folder</string>
@@ -107,6 +118,7 @@
 				<string>com.omnipreview.toml</string>
 				<string>com.omnipreview.ini</string>
 				<string>com.microsoft.ini</string>
+				<string>com.apple.log</string>
 				<string>com.omnipreview.env</string>
 				<string>com.omnipreview.log</string>
 				<string>public.data</string>
@@ -116,7 +128,9 @@
 				<string>com.omnipreview.ipa</string>
 				<string>com.omnipreview.dump</string>
 				<string>com.omnipreview.deb</string>
+				<string>public.archive.apk</string>
 				<string>com.sun.java-archive</string>
+				<string>com.sun.web-application-archive</string>
 				<string>com.apple.itunes.ipa</string>
 				<string>com.android.apk</string>
 				<string>com.adobe.pdf</string>
@@ -129,6 +143,7 @@
 				<string>com.microsoft.word.doc</string>
 				<string>com.microsoft.excel.xls</string>
 				<string>com.microsoft.powerpoint.ppt</string>
+				<string>org.iso.sql</string>
 				<string>org.idpf.epub-container</string>
 				<string>com.omnipreview.mobi</string>
 				<string>com.omnipreview.fb2</string>

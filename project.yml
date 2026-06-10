@@ -56,8 +56,8 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: OmniPreview
-        CFBundleShortVersionString: "0.3.2"
-        CFBundleVersion: "5"
+        CFBundleShortVersionString: "0.3.3"
+        CFBundleVersion: "6"
         NSHumanReadableCopyright: "© 2026 Lorenzo Vismara — MIT License"
         LSMinimumSystemVersion: "13.0"
         LSApplicationCategoryType: public.app-category.utilities
@@ -224,7 +224,7 @@ targets:
             UTTypeDescription: INI Configuration
             UTTypeConformsTo: [public.plain-text]
             UTTypeTagSpecification:
-              public.filename-extension: [ini, cfg, conf, editorconfig, desktop]
+              public.filename-extension: [ini, cfg, conf, cnf, properties, editorconfig, desktop, gitconfig]
           - UTTypeIdentifier: com.omnipreview.env
             UTTypeDescription: Environment Variables
             UTTypeConformsTo: [public.plain-text]
@@ -329,15 +329,26 @@ targets:
               - com.bittorrent.torrent
               - public.x509-certificate
               - public.truetype-font
+              - public.truetype-ttf-font
               - public.opentype-font
               - com.omnipreview.woff
               - public.png
               - public.mpeg-4
               - com.apple.quicktime-movie
+              - public.avi
+              - public.mp3
+              - com.apple.m4a-audio
+              - com.microsoft.waveform-audio
+              - org.xiph.flac
+              - org.xiph.ogg-audio
+              - org.webmproject.webm
               - public.heic
               - public.heif
               - public.webp
               - org.webmproject.webp
+              - public.avif
+              - com.apple.icns
+              - com.microsoft.ico
               - public.yaml
               - com.apple.disk-image-udif
               - public.folder
@@ -391,6 +402,7 @@ targets:
               - com.omnipreview.toml
               - com.omnipreview.ini
               - com.microsoft.ini
+              - com.apple.log
               - com.omnipreview.env
               - com.omnipreview.log
               # Extensionless text files often resolve as public.data.
@@ -403,7 +415,9 @@ targets:
               - com.omnipreview.ipa
               - com.omnipreview.dump
               - com.omnipreview.deb
+              - public.archive.apk
               - com.sun.java-archive
+              - com.sun.web-application-archive
               - com.apple.itunes.ipa
               - com.android.apk
               # ── Documents ─────────────────────────────────────────────────
@@ -417,6 +431,7 @@ targets:
               - com.microsoft.word.doc
               - com.microsoft.excel.xls
               - com.microsoft.powerpoint.ppt
+              - org.iso.sql
               # ── eBooks ────────────────────────────────────────────────────
               - org.idpf.epub-container
               - com.omnipreview.mobi
