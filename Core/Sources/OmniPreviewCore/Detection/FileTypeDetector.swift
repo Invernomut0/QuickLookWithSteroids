@@ -9,17 +9,42 @@ public enum FileTypeDetector {
     /// Extensions mapped to source-code language names, used as a fallback
     /// when no binary signature matches.
     static let sourceLanguages: [String: String] = [
+        // Swift / Apple
         "swift": "Swift", "m": "Objective-C", "mm": "Objective-C++",
-        "py": "Python", "go": "Go", "rs": "Rust",
-        "c": "C", "h": "C/C++ Header", "cpp": "C++", "cc": "C++", "hpp": "C++ Header",
-        "cs": "C#", "java": "Java", "kt": "Kotlin",
-        "js": "JavaScript", "jsx": "JavaScript", "ts": "TypeScript", "tsx": "TypeScript",
-        "php": "PHP", "rb": "Ruby", "lua": "Lua",
-        "sh": "Shell", "bash": "Shell", "zsh": "Shell",
-        "sql": "SQL", "html": "HTML", "css": "CSS",
+        // Scripting
+        "py": "Python", "rb": "Ruby", "php": "PHP", "lua": "Lua",
+        "sh": "Shell", "bash": "Shell", "zsh": "Shell", "fish": "Shell",
+        // Systems / compiled
+        "go": "Go", "rs": "Rust", "c": "C", "h": "C Header",
+        "cpp": "C++", "cc": "C++", "cxx": "C++", "hpp": "C++ Header", "hxx": "C++ Header",
+        "cs": "C#", "java": "Java", "kt": "Kotlin", "kts": "Kotlin",
+        // Web
+        "js": "JavaScript", "jsx": "JavaScript",
+        "ts": "TypeScript", "tsx": "TypeScript",
+        "html": "HTML", "htm": "HTML", "xhtml": "HTML",
+        "css": "CSS", "scss": "SCSS", "sass": "SCSS", "less": "CSS",
+        "svelte": "Svelte", "vue": "Vue",
+        // Data & config
         "xml": "XML", "yaml": "YAML", "yml": "YAML",
-        "json": "JSON", "toml": "TOML", "ini": "INI",
-        "dockerfile": "Dockerfile", "tf": "Terraform", "nix": "Nix",
+        "json": "JSON", "jsonc": "JSON", "json5": "JSON",
+        "toml": "TOML", "ini": "INI", "cfg": "INI", "conf": "INI",
+        // Infra & tooling
+        "sql": "SQL", "tf": "Terraform", "tfvars": "Terraform",
+        "nix": "Nix", "dockerfile": "Dockerfile",
+        "makefile": "Makefile", "mk": "Makefile",
+        "gradle": "Groovy", "groovy": "Groovy",
+        // Text & docs
+        "md": "Markdown", "markdown": "Markdown",
+        "txt": "Plain Text", "log": "Plain Text", "env": "Plain Text",
+        "csv": "Plain Text", "tsv": "Plain Text",
+        // Misc
+        "graphql": "GraphQL", "gql": "GraphQL",
+        "r": "R", "jl": "Julia", "ex": "Elixir", "exs": "Elixir",
+        "elm": "Elm", "clj": "Clojure", "cljs": "Clojure",
+        "hs": "Haskell", "ml": "OCaml", "mli": "OCaml",
+        "dart": "Dart", "nim": "Nim", "cr": "Crystal",
+        "scala": "Scala", "erl": "Erlang", "hrl": "Erlang",
+        "plist": "XML", "strings": "Strings",
     ]
 
     /// TIFF-based camera RAW formats distinguished by extension once the

@@ -56,10 +56,70 @@
 				<string>public.opentype-font</string>
 				<string>com.omnipreview.woff</string>
 				<string>public.png</string>
-				<string>public.geojson</string>
 				<string>public.yaml</string>
 				<string>com.apple.disk-image-udif</string>
 				<string>public.folder</string>
+				<string>public.source-code</string>
+				<string>public.json</string>
+				<string>public.xml</string>
+				<string>public.html</string>
+				<string>public.css</string>
+				<string>public.plain-text</string>
+				<string>com.apple.xcode.strings-text</string>
+				<string>net.daringfireball.markdown</string>
+				<string>com.omnipreview.markdown</string>
+				<string>com.omnipreview.typescript</string>
+				<string>com.omnipreview.ruby</string>
+				<string>com.omnipreview.php</string>
+				<string>com.omnipreview.csharp</string>
+				<string>com.omnipreview.go</string>
+				<string>com.omnipreview.rs</string>
+				<string>com.omnipreview.kt</string>
+				<string>com.omnipreview.lua</string>
+				<string>com.omnipreview.scss</string>
+				<string>com.omnipreview.terraform</string>
+				<string>com.omnipreview.nix</string>
+				<string>com.omnipreview.sql</string>
+				<string>com.omnipreview.graphql</string>
+				<string>com.omnipreview.dart</string>
+				<string>com.omnipreview.scala</string>
+				<string>com.omnipreview.toml</string>
+				<string>com.omnipreview.ini</string>
+				<string>com.omnipreview.env</string>
+				<string>com.omnipreview.log</string>
+				<string>com.omnipreview.cbz</string>
+				<string>com.omnipreview.jar</string>
+				<string>com.omnipreview.apk</string>
+				<string>com.omnipreview.ipa</string>
+				<string>com.omnipreview.dump</string>
+				<string>com.omnipreview.deb</string>
+				<string>com.sun.java-archive</string>
+				<string>com.apple.itunes.ipa</string>
+				<string>com.android.apk</string>
+				<string>com.adobe.pdf</string>
+				<string>org.openxmlformats.wordprocessingml.document</string>
+				<string>org.openxmlformats.spreadsheetml.sheet</string>
+				<string>org.openxmlformats.presentationml.presentation</string>
+				<string>org.oasis-open.opendocument.text</string>
+				<string>org.oasis-open.opendocument.spreadsheet</string>
+				<string>org.oasis-open.opendocument.presentation</string>
+				<string>com.microsoft.word.doc</string>
+				<string>com.microsoft.excel.xls</string>
+				<string>com.microsoft.powerpoint.ppt</string>
+				<string>org.idpf.epub-container</string>
+				<string>com.omnipreview.mobi</string>
+				<string>com.omnipreview.fb2</string>
+				<string>public.jpeg</string>
+				<string>public.tiff</string>
+				<string>public.gif</string>
+				<string>com.compuserve.gif</string>
+				<string>com.adobe.photoshop-image</string>
+				<string>public.geojson</string>
+				<string>com.omnipreview.geojson</string>
+				<string>com.google.earth.kml</string>
+				<string>com.omnipreview.pytorch</string>
+				<string>com.omnipreview.swift-package-manifest</string>
+				<string>com.rsa.pkcs-12</string>
 			</array>
 			<key>QLSupportsSearchableItems</key>
 			<false/>

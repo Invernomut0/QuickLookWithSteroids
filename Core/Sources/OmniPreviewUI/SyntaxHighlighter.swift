@@ -278,8 +278,30 @@ struct SyntaxHighlighter {
         case "lua":
             return ["and","break","do","else","elseif","end","false","for","function","goto","if",
                     "in","local","nil","not","or","repeat","return","then","true","until","while"]
-        case "swift" where true: // second branch placeholder
-            return []
+        case "scss", "sass", "less":
+            return ["@import","@use","@forward","@mixin","@include","@extend",
+                    "@if","@else","@for","@each","@while","@function","@return",
+                    "@media","@keyframes","@supports","@layer","@property",
+                    "from","to","true","false","null","not","and","or"]
+        case "graphql", "gql":
+            return ["query","mutation","subscription","fragment","on","type","interface",
+                    "union","enum","input","scalar","schema","directive","extend",
+                    "true","false","null","implements","repeatable"]
+        case "dart":
+            return ["abstract","as","assert","async","await","break","case","catch",
+                    "class","const","continue","covariant","default","deferred","do",
+                    "dynamic","else","enum","export","extends","extension","external",
+                    "factory","false","final","finally","for","Function","get","hide",
+                    "if","implements","import","in","interface","is","late","library",
+                    "mixin","new","null","on","operator","part","required","rethrow",
+                    "return","set","show","static","super","switch","sync","this",
+                    "throw","true","try","typedef","var","void","while","with","yield"]
+        case "scala":
+            return ["abstract","case","catch","class","def","do","else","extends",
+                    "false","final","finally","for","forSome","if","implicit","import",
+                    "lazy","macro","match","new","null","object","override","package",
+                    "private","protected","return","sealed","super","this","throw","trait",
+                    "true","try","type","val","var","while","with","yield"]
         default:
             return []
         }
@@ -303,10 +325,12 @@ struct SyntaxHighlighter {
 
     private static func lineCommentPattern(for language: String) -> String? {
         switch language {
-        case "python","ruby","shell","bash","zsh","toml","ini","cfg","conf","yaml": return "#.*"
-        case "lua": return "--.*"
-        case "sql": return "--.*"
-        default: return "//.*"  // C-family
+        case "python","ruby","shell","bash","zsh","fish","toml","ini","cfg","conf",
+             "yaml","r","nim","elixir","crystal","graphql","gql":
+            return "#.*"
+        case "lua","haskell","hs","sql": return "--.*"
+        case "scss","sass","less","css","html","xml","svg": return nil  // block-only
+        default: return "//.*"  // C-family and everything else
         }
     }
 

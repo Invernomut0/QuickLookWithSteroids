@@ -130,6 +130,155 @@ targets:
             UTTypeConformsTo: [public.data]
             UTTypeTagSpecification:
               public.filename-extension: [shp]
+          # ── Source code: types macOS doesn't know ─────────────────────────
+          - UTTypeIdentifier: com.omnipreview.typescript
+            UTTypeDescription: TypeScript Source
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [ts, tsx, jsx]
+          - UTTypeIdentifier: com.omnipreview.ruby
+            UTTypeDescription: Ruby Script
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [rb]
+          - UTTypeIdentifier: com.omnipreview.php
+            UTTypeDescription: PHP Script
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [php]
+          - UTTypeIdentifier: com.omnipreview.csharp
+            UTTypeDescription: C# Source
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [cs]
+          - UTTypeIdentifier: com.omnipreview.go
+            UTTypeDescription: Go Source
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [go]
+          - UTTypeIdentifier: com.omnipreview.rs
+            UTTypeDescription: Rust Source
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [rs]
+          - UTTypeIdentifier: com.omnipreview.kt
+            UTTypeDescription: Kotlin Source
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [kt, kts]
+          - UTTypeIdentifier: com.omnipreview.lua
+            UTTypeDescription: Lua Script
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [lua]
+          - UTTypeIdentifier: com.omnipreview.scss
+            UTTypeDescription: SCSS Stylesheet
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [scss, sass, less]
+          - UTTypeIdentifier: com.omnipreview.terraform
+            UTTypeDescription: Terraform Configuration
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [tf, tfvars, hcl]
+          - UTTypeIdentifier: com.omnipreview.nix
+            UTTypeDescription: Nix Expression
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [nix]
+          - UTTypeIdentifier: com.omnipreview.sql
+            UTTypeDescription: SQL Script
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [sql]
+          - UTTypeIdentifier: com.omnipreview.graphql
+            UTTypeDescription: GraphQL
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [graphql, gql]
+          - UTTypeIdentifier: com.omnipreview.dart
+            UTTypeDescription: Dart Source
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [dart]
+          - UTTypeIdentifier: com.omnipreview.scala
+            UTTypeDescription: Scala Source
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [scala]
+          - UTTypeIdentifier: com.omnipreview.swift-package-manifest
+            UTTypeDescription: Swift Package Manifest
+            UTTypeConformsTo: [public.source-code]
+            UTTypeTagSpecification:
+              public.filename-extension: [resolved]
+          # ── Config & text: types macOS doesn't know ────────────────────────
+          - UTTypeIdentifier: com.omnipreview.toml
+            UTTypeDescription: TOML Configuration
+            UTTypeConformsTo: [public.plain-text]
+            UTTypeTagSpecification:
+              public.filename-extension: [toml]
+          - UTTypeIdentifier: com.omnipreview.ini
+            UTTypeDescription: INI Configuration
+            UTTypeConformsTo: [public.plain-text]
+            UTTypeTagSpecification:
+              public.filename-extension: [ini, cfg, conf, editorconfig, desktop]
+          - UTTypeIdentifier: com.omnipreview.env
+            UTTypeDescription: Environment Variables
+            UTTypeConformsTo: [public.plain-text]
+            UTTypeTagSpecification:
+              public.filename-extension: [env]
+          - UTTypeIdentifier: com.omnipreview.log
+            UTTypeDescription: Log File
+            UTTypeConformsTo: [public.plain-text]
+            UTTypeTagSpecification:
+              public.filename-extension: [log]
+          - UTTypeIdentifier: com.omnipreview.markdown
+            UTTypeDescription: Markdown Document
+            UTTypeConformsTo: [public.plain-text]
+            UTTypeTagSpecification:
+              public.filename-extension: [md, markdown, mdown, mkd]
+          # ── Archives without standard Apple UTIs ──────────────────────────
+          - UTTypeIdentifier: com.omnipreview.cbz
+            UTTypeDescription: Comic Book Archive
+            UTTypeConformsTo: [public.zip-archive]
+            UTTypeTagSpecification:
+              public.filename-extension: [cbz]
+          - UTTypeIdentifier: com.omnipreview.jar
+            UTTypeDescription: Java Archive
+            UTTypeConformsTo: [public.zip-archive]
+            UTTypeTagSpecification:
+              public.filename-extension: [jar, war]
+          - UTTypeIdentifier: com.omnipreview.apk
+            UTTypeDescription: Android Package
+            UTTypeConformsTo: [public.zip-archive]
+            UTTypeTagSpecification:
+              public.filename-extension: [apk]
+          - UTTypeIdentifier: com.omnipreview.ipa
+            UTTypeDescription: iOS App Package
+            UTTypeConformsTo: [public.zip-archive]
+            UTTypeTagSpecification:
+              public.filename-extension: [ipa]
+          - UTTypeIdentifier: com.omnipreview.dump
+            UTTypeDescription: Database Dump
+            UTTypeConformsTo: [public.plain-text]
+            UTTypeTagSpecification:
+              public.filename-extension: [dump]
+          - UTTypeIdentifier: com.omnipreview.deb
+            UTTypeDescription: Debian Package
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [deb]
+          # ── ML / data without standard Apple UTIs ─────────────────────────
+          - UTTypeIdentifier: com.omnipreview.pytorch
+            UTTypeDescription: PyTorch Checkpoint
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [pt, pth]
+          - UTTypeIdentifier: com.omnipreview.geojson
+            UTTypeDescription: GeoJSON
+            UTTypeConformsTo: [public.json]
+            UTTypeTagSpecification:
+              public.filename-extension: [geojson]
 
   PreviewExtension:
     templates: [QLExtension]
@@ -180,10 +329,84 @@ targets:
               - public.opentype-font
               - com.omnipreview.woff
               - public.png
-              - public.geojson
               - public.yaml
               - com.apple.disk-image-udif
               - public.folder
+              # ── Source code ───────────────────────────────────────────────
+              # public.source-code covers: .swift, .py, .js, .c, .cpp, .h,
+              # .java, .m, .mm, .sh, .bash, .zsh, .html, .css and their variants
+              - public.source-code
+              # Specific Apple UTIs that DON'T inherit from public.source-code
+              - public.json
+              - public.xml
+              - public.html
+              - public.css
+              - public.plain-text
+              - com.apple.xcode.strings-text
+              # ── Markdown ──────────────────────────────────────────────────
+              - net.daringfireball.markdown
+              - com.omnipreview.markdown
+              # ── Custom source code UTIs (no Apple UTI exists) ─────────────
+              - com.omnipreview.typescript
+              - com.omnipreview.ruby
+              - com.omnipreview.php
+              - com.omnipreview.csharp
+              - com.omnipreview.go
+              - com.omnipreview.rs
+              - com.omnipreview.kt
+              - com.omnipreview.lua
+              - com.omnipreview.scss
+              - com.omnipreview.terraform
+              - com.omnipreview.nix
+              - com.omnipreview.sql
+              - com.omnipreview.graphql
+              - com.omnipreview.dart
+              - com.omnipreview.scala
+              # ── Config & text ─────────────────────────────────────────────
+              - com.omnipreview.toml
+              - com.omnipreview.ini
+              - com.omnipreview.env
+              - com.omnipreview.log
+              # ── Archives (additional) ─────────────────────────────────────
+              - com.omnipreview.cbz
+              - com.omnipreview.jar
+              - com.omnipreview.apk
+              - com.omnipreview.ipa
+              - com.omnipreview.dump
+              - com.omnipreview.deb
+              - com.sun.java-archive
+              - com.apple.itunes.ipa
+              - com.android.apk
+              # ── Documents ─────────────────────────────────────────────────
+              - com.adobe.pdf
+              - org.openxmlformats.wordprocessingml.document
+              - org.openxmlformats.spreadsheetml.sheet
+              - org.openxmlformats.presentationml.presentation
+              - org.oasis-open.opendocument.text
+              - org.oasis-open.opendocument.spreadsheet
+              - org.oasis-open.opendocument.presentation
+              - com.microsoft.word.doc
+              - com.microsoft.excel.xls
+              - com.microsoft.powerpoint.ppt
+              # ── eBooks ────────────────────────────────────────────────────
+              - org.idpf.epub-container
+              - com.omnipreview.mobi
+              - com.omnipreview.fb2
+              # ── Images ────────────────────────────────────────────────────
+              - public.jpeg
+              - public.tiff
+              - public.gif
+              - com.compuserve.gif
+              - com.adobe.photoshop-image
+              # ── GIS ───────────────────────────────────────────────────────
+              - public.geojson
+              - com.omnipreview.geojson
+              - com.google.earth.kml
+              # ── ML / Scientific ───────────────────────────────────────────
+              - com.omnipreview.pytorch
+              - com.omnipreview.swift-package-manifest
+              # ── Security ──────────────────────────────────────────────────
+              - com.rsa.pkcs-12
             QLSupportsSearchableItems: false
 
   ThumbnailExtension:
