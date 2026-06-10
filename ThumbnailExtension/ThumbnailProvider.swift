@@ -52,6 +52,7 @@ final class ThumbnailProvider: QLThumbnailProvider {
 
     private static func iconName(for kind: FileKind) -> String {
         switch kind {
+        case .folder: return "folder.fill"
         case .zip, .tar, .gzip, .sevenZip, .rar, .xz, .bzip2, .cab, .arArchive, .xar:
             return "doc.zipper"
         case .iso, .dmg, .diskImage: return "externaldrive"

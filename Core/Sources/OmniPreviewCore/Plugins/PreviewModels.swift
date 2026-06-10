@@ -19,6 +19,7 @@ public struct PreviewDocument: Sendable {
 public enum PreviewSection: Sendable {
     case keyValues(title: String?, rows: [KeyValueRow])
     case fileTree(title: String?, entries: [ArchiveEntry])
+    case folderTree(nodes: [FolderNode])
     case text(content: String, language: String?)
     case table(title: String?, columns: [String], rows: [[String]])
     case fontSpecimen(fontURL: URL)
@@ -26,6 +27,37 @@ public enum PreviewSection: Sendable {
     case imageData(Data)
     case model3D(URL)
     case note(String)
+}
+
+/// A node in a folder tree. Directories carry a `children` array (possibly
+/// empty after hitting the depth/count cap); files have `nil` children.
+public final class FolderNode: Sendable, Identifiable {
+    public let id: UUID
+    public let name: String
+    public let isDirectory: Bool
+    /// Byte size for files; 0 for directories.
+    public let size: UInt64
+    /// Number of immediate visible children (directories only).
+    public let childCount: Int?
+    public let modified: Date?
+    public let iconName: String
+    /// `nil` for files; non-nil (possibly empty) for directories.
+    public let children: [FolderNode]?
+
+    public init(
+        name: String, isDirectory: Bool, size: UInt64,
+        childCount: Int? = nil, modified: Date?, iconName: String,
+        children: [FolderNode]? = nil
+    ) {
+        self.id = UUID()
+        self.name = name
+        self.isDirectory = isDirectory
+        self.size = size
+        self.childCount = childCount
+        self.modified = modified
+        self.iconName = iconName
+        self.children = children
+    }
 }
 
 public struct KeyValueRow: Sendable, Identifiable {

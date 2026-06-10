@@ -59,6 +59,7 @@
 				<string>public.geojson</string>
 				<string>public.yaml</string>
 				<string>com.apple.disk-image-udif</string>
+				<string>public.folder</string>
 			</array>
 			<key>QLSupportsSearchableItems</key>
 			<false/>

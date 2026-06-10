@@ -57,6 +57,7 @@ public enum FileKind: Equatable, Sendable {
     case pkcs12
 
     // Misc
+    case folder
     case font
     case sourceCode(language: String)
     case unknown

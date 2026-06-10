@@ -32,6 +32,9 @@ public enum FileTypeDetector {
 
     public static func detect(url: URL) throws -> DetectedFile {
         let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+        if (attributes[.type] as? FileAttributeType) == .typeDirectory {
+            return DetectedFile(url: url, kind: .folder, fileSize: 0)
+        }
         let fileSize = (attributes[.size] as? UInt64) ?? 0
 
         let handle = try FileHandle(forReadingFrom: url)

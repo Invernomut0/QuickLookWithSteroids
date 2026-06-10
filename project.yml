@@ -183,6 +183,7 @@ targets:
               - public.geojson
               - public.yaml
               - com.apple.disk-image-udif
+              - public.folder
             QLSupportsSearchableItems: false
 
   ThumbnailExtension:

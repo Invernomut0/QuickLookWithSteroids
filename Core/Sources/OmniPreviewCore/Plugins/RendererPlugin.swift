@@ -13,9 +13,10 @@ public protocol PreviewRenderer: Sendable {
 }
 
 public enum RendererRegistry {
-    /// Order matters: specialized ZIP-based renderers (Office, eBooks, app
-    /// packages, KMZ, USDZ) must precede the generic ZIP renderer.
+    /// Order matters: FolderRenderer first (detects .folder), then specialized
+    /// ZIP-based renderers before the generic ZIP renderer.
     public static let all: [any PreviewRenderer] = [
+        FolderRenderer(),
         OfficeRenderer(),
         EbookRenderer(),
         AppPackageRenderer(),

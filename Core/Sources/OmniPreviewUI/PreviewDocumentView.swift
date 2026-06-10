@@ -16,15 +16,21 @@ public struct PreviewDocumentView: View {
     }
 
     public var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                header
-                ForEach(Array(document.sections.enumerated()), id: \.offset) { _, section in
-                    SectionView(section: section)
+        // Folder previews get a dedicated full-height List view; all other
+        // types use the generic scrollable section layout.
+        if let folderSection = document.sections.compactMap({ if case .folderTree(let n) = $0 { return n } else { return nil } }).first {
+            FolderPreviewView(document: document, nodes: folderSection)
+        } else {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    header
+                    ForEach(Array(document.sections.enumerated()), id: \.offset) { _, section in
+                        SectionView(section: section)
+                    }
                 }
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(20)
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -158,6 +164,10 @@ private struct SectionView: View {
                 .frame(height: 360)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
 
+        case .folderTree:
+            // Handled at the top level by FolderPreviewView; not rendered here.
+            EmptyView()
+
         case .note(let text):
             Text(text)
                 .font(.footnote)
@@ -204,6 +214,123 @@ private struct Model3DView: View {
         let scene = SCNScene(mdlAsset: asset)
         scene.background.contents = NSColor.windowBackgroundColor
         return scene
+    }
+}
+
+// MARK: Folder Preview (Finder-style)
+
+/// Full-height folder preview: a summary header plus a native List with
+/// expand/collapse triangles, type icons, sizes, and modification dates —
+/// matching the Finder "Name" sort (folders first, then files).
+private struct FolderPreviewView: View {
+    let document: PreviewDocument
+    let nodes: [FolderNode]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Summary strip
+            if let summarySection = document.sections.first,
+               case .keyValues(_, let rows) = summarySection {
+                HStack(spacing: 16) {
+                    Image(systemName: "folder.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.secondary)
+                    Text(document.title)
+                        .font(.headline)
+                    Spacer()
+                    ForEach(rows.prefix(4)) { row in
+                        VStack(alignment: .trailing, spacing: 1) {
+                            Text(row.value)
+                                .font(.callout.monospacedDigit())
+                            Text(row.key)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(.bar)
+
+                Divider()
+            }
+
+            // Column header
+            HStack(spacing: 0) {
+                Text("Name")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("Size")
+                    .frame(width: 80, alignment: .trailing)
+                Text("Modified")
+                    .frame(width: 140, alignment: .trailing)
+            }
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 5)
+            .background(Color(nsColor: .controlBackgroundColor))
+
+            Divider()
+
+            // Outline tree
+            List(nodes, children: \.children) { node in
+                FolderRowView(node: node)
+                    .listRowSeparator(.hidden)
+            }
+            .listStyle(.plain)
+            .environment(\.defaultMinListRowHeight, 22)
+        }
+    }
+}
+
+private struct FolderRowView: View {
+    let node: FolderNode
+
+    var body: some View {
+        HStack(spacing: 0) {
+            // Icon + name
+            HStack(spacing: 5) {
+                Image(systemName: node.iconName)
+                    .font(.system(size: 12))
+                    .foregroundStyle(node.isDirectory ? Color.accentColor : .secondary)
+                    .frame(width: 16)
+                Text(node.name)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            // Size / item count
+            Group {
+                if node.isDirectory {
+                    if let count = node.childCount, count > 0 {
+                        Text("\(count) item\(count == 1 ? "" : "s")")
+                    } else {
+                        Text("—")
+                    }
+                } else if node.size > 0 {
+                    Text(ByteCountFormatter.string(fromByteCount: Int64(clamping: node.size), countStyle: .file))
+                } else {
+                    Text("—")
+                }
+            }
+            .font(.callout.monospacedDigit())
+            .foregroundStyle(.secondary)
+            .frame(width: 80, alignment: .trailing)
+
+            // Modification date
+            Group {
+                if let date = node.modified {
+                    Text(date.formatted(.dateTime.day().month(.abbreviated).year().hour().minute()))
+                } else {
+                    Text("—")
+                }
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .frame(width: 140, alignment: .trailing)
+        }
+        .font(.callout)
     }
 }
 
