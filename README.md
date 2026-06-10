@@ -40,6 +40,19 @@ open build/Build/Products/Debug/OmniPreview.app
 
 Launching the app once registers both Quick Look extensions with the system. Enable them under **System Settings → General → Login Items & Extensions → Quick Look**, then press Space on a supported file in Finder. To force Quick Look to pick up changes during development: `qlmanage -r && qlmanage -r cache`.
 
+The app adds an **eye icon to the menu bar** with quick access to the preview tester, Settings (menu bar visibility, per-plugin enable/disable, cache clearing), the System Settings extension pane, and About. The main window doubles as a renderer test bench — drop any file onto it.
+
+## IDE Setup (VS Code / SourceKit-LSP)
+
+The Swift package lives in `Core/`, so [.vscode/settings.json](.vscode/settings.json) enables `swift.searchSubfoldersForPackages`. The app and extension sources belong to the Xcode project, which SourceKit-LSP can only understand through a build server:
+
+```bash
+brew install xcode-build-server
+xcode-build-server config -project OmniPreview.xcodeproj -scheme OmniPreview
+```
+
+`buildServer.json` is machine-specific and gitignored. Without it you will see phantom "Cannot find type in scope" diagnostics in `App/` and the extension sources even though the build succeeds.
+
 ## Repository Layout
 
 ```

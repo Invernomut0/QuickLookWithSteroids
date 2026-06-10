@@ -159,6 +159,15 @@ final class RendererTests: XCTestCase {
         XCTAssertEqual(first.title, second.title)
     }
 
+    func testRegistryRespectsDisabledRenderers() {
+        let file = DetectedFile(url: URL(fileURLWithPath: "/tmp/x.zip"), kind: .zip, fileSize: 0)
+        XCTAssertNotNil(RendererRegistry.renderer(for: file))
+
+        RendererSettings.setEnabled(id: ZIPRenderer.id, false)
+        defer { RendererSettings.setEnabled(id: ZIPRenderer.id, true) }
+        XCTAssertNil(RendererRegistry.renderer(for: file))
+    }
+
     func testRegistryFindsRendererForEachSupportedKind() {
         let kinds: [FileKind] = [.zip, .sqlite, .safetensors, .gguf, .pemCertificate, .font, .sourceCode(language: "Swift")]
         for kind in kinds {

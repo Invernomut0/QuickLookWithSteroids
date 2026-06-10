@@ -53,6 +53,9 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: OmniPreview
+        CFBundleShortVersionString: "0.2.0"
+        CFBundleVersion: "2"
+        NSHumanReadableCopyright: "© 2026 Lorenzo Vismara — MIT License"
         LSMinimumSystemVersion: "13.0"
         LSApplicationCategoryType: public.app-category.utilities
         UTImportedTypeDeclarations:

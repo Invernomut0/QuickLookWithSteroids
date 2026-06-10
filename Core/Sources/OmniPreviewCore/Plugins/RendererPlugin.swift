@@ -30,6 +30,6 @@ public enum RendererRegistry {
     ]
 
     public static func renderer(for file: DetectedFile) -> (any PreviewRenderer)? {
-        all.first { $0.canRender(file) }
+        all.first { RendererSettings.isEnabled(id: type(of: $0).id) && $0.canRender(file) }
     }
 }

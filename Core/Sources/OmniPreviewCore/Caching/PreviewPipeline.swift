@@ -16,6 +16,10 @@ public final class PreviewPipeline: @unchecked Sendable {
         cache.countLimit = cacheCountLimit
     }
 
+    public func clearCache() {
+        cache.removeAllObjects()
+    }
+
     public func document(for url: URL) async throws -> PreviewDocument {
         let key = try Self.cacheKey(for: url)
         if let cached = cache.object(forKey: key as NSString) {
