@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Core tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run core test suite
+        run: swift test --package-path Core
+
+  build:
+    name: Build app + extensions
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Build
+        run: |
+          xcodegen generate
+          xcodebuild -project OmniPreview.xcodeproj \
+            -scheme OmniPreview \
+            -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build

@@ -1,0 +1,144 @@
+name: OmniPreview
+options:
+  bundleIdPrefix: com.omnipreview
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGN_IDENTITY: "-"
+    ENABLE_HARDENED_RUNTIME: true
+    DEAD_CODE_STRIPPING: true
+
+packages:
+  OmniPreviewCore:
+    path: Core
+
+# UTIs handled by the Quick Look extensions. Types macOS does not know
+# (safetensors, gguf, generic sqlite) are imported by the host app below.
+targetTemplates:
+  QLExtension:
+    type: app-extension
+    platform: macOS
+    dependencies:
+      - package: OmniPreviewCore
+        product: OmniPreviewCore
+      - package: OmniPreviewCore
+        product: OmniPreviewUI
+
+targets:
+  OmniPreview:
+    type: application
+    platform: macOS
+    sources: [App]
+    dependencies:
+      - package: OmniPreviewCore
+        product: OmniPreviewCore
+      - package: OmniPreviewCore
+        product: OmniPreviewUI
+      - target: PreviewExtension
+        embed: true
+      - target: ThumbnailExtension
+        embed: true
+    entitlements:
+      path: App/OmniPreview.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.files.user-selected.read-only: true
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: OmniPreview
+        LSMinimumSystemVersion: "13.0"
+        LSApplicationCategoryType: public.app-category.utilities
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: com.omnipreview.safetensors
+            UTTypeDescription: Safetensors Model
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [safetensors]
+          - UTTypeIdentifier: com.omnipreview.gguf
+            UTTypeDescription: GGUF Model
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [gguf]
+          - UTTypeIdentifier: com.omnipreview.sqlite
+            UTTypeDescription: SQLite Database
+            UTTypeConformsTo: [public.data, public.database]
+            UTTypeTagSpecification:
+              public.filename-extension: [sqlite, sqlite3, db]
+          - UTTypeIdentifier: com.omnipreview.woff
+            UTTypeDescription: Web Open Font Format
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [woff, woff2]
+          - UTTypeIdentifier: com.omnipreview.npy
+            UTTypeDescription: NumPy Array
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [npy]
+
+  PreviewExtension:
+    templates: [QLExtension]
+    sources: [PreviewExtension]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.omnipreview.OmniPreview.PreviewExtension
+    entitlements:
+      path: PreviewExtension/PreviewExtension.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    info:
+      path: PreviewExtension/Info.plist
+      properties:
+        CFBundleDisplayName: OmniPreview Preview
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.quicklook.preview
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).PreviewViewController
+          NSExtensionAttributes:
+            QLSupportedContentTypes:
+              - public.zip-archive
+              - com.pkware.zip-archive
+              - public.tar-archive
+              - org.gnu.gnu-zip-archive
+              - org.gnu.gnu-zip-tar-archive
+              - com.omnipreview.sqlite
+              - com.omnipreview.safetensors
+              - com.omnipreview.gguf
+              - com.omnipreview.npy
+              - public.x509-certificate
+              - public.truetype-font
+              - public.opentype-font
+              - com.omnipreview.woff
+              - public.png
+            QLSupportsSearchableItems: false
+
+  ThumbnailExtension:
+    templates: [QLExtension]
+    sources: [ThumbnailExtension]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.omnipreview.OmniPreview.ThumbnailExtension
+    entitlements:
+      path: ThumbnailExtension/ThumbnailExtension.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    info:
+      path: ThumbnailExtension/Info.plist
+      properties:
+        CFBundleDisplayName: OmniPreview Thumbnails
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.quicklook.thumbnail
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ThumbnailProvider
+          NSExtensionAttributes:
+            QLSupportedContentTypes:
+              - com.omnipreview.sqlite
+              - com.omnipreview.safetensors
+              - com.omnipreview.gguf
+              - com.omnipreview.npy
+              - com.omnipreview.woff
+            QLThumbnailMinimumDimension: 0
