@@ -128,7 +128,8 @@ public struct ArchiveMetadataRenderer: PreviewRenderer {
         }
     }
 
-    /// DMG images end with a 512-byte big-endian "koly" trailer.
+    /// DMG images end with a 512-byte big-endian "koly" trailer pointing at
+    /// an XML property list that describes the partitions (blkx entries).
     private static func renderDMG(_ file: DetectedFile, handle: FileHandle) throws -> PreviewDocument {
         guard file.fileSize >= 512 else { throw PreviewError.corruptFile("file too small for a DMG") }
         try handle.seek(toOffset: file.fileSize - 512)
@@ -136,21 +137,54 @@ public struct ArchiveMetadataRenderer: PreviewRenderer {
         guard trailer.starts(with: Array("koly".utf8)) else {
             throw PreviewError.corruptFile("missing koly trailer — not a UDIF disk image")
         }
-        var reader = DataReader(trailer)
-        try reader.skip(4)
-        let version = try reader.readU32BE()
-        // Sector count lives at fixed offset 0x1EC within the trailer.
-        var sectorReader = DataReader(trailer)
-        try sectorReader.skip(0x1EC)
-        let high = try sectorReader.readU32BE()
-        let low = try sectorReader.readU32BE()
-        let sectors = UInt64(high) << 32 | UInt64(low)
 
-        return simple(file, "Apple Disk Image", "externaldrive", [
+        func u64BE(at offset: Int) throws -> UInt64 {
+            var reader = DataReader(trailer)
+            try reader.skip(offset)
+            let high = try reader.readU32BE()
+            let low = try reader.readU32BE()
+            return UInt64(high) << 32 | UInt64(low)
+        }
+        var versionReader = DataReader(trailer)
+        try versionReader.skip(4)
+        let version = try versionReader.readU32BE()
+        let xmlOffset = try u64BE(at: 0xD8)
+        let xmlLength = try u64BE(at: 0xE0)
+        let sectors = try u64BE(at: 0x1EC)
+
+        var rows = [
             KeyValueRow("Uncompressed size", Format.bytes(sectors * 512)),
             KeyValueRow("Image size", Format.bytes(file.fileSize)),
             KeyValueRow("UDIF version", "\(version)"),
-        ])
+        ]
+
+        // Partition names from the blkx resource list.
+        var partitionRows: [KeyValueRow] = []
+        if xmlLength > 0, xmlLength <= 32 * 1024 * 1024, xmlOffset + xmlLength <= file.fileSize {
+            try handle.seek(toOffset: xmlOffset)
+            if let xmlData = try handle.read(upToCount: Int(xmlLength)),
+               let plist = try? PropertyListSerialization.propertyList(from: xmlData, format: nil) as? [String: Any],
+               let resourceFork = plist["resource-fork"] as? [String: Any],
+               let blkx = resourceFork["blkx"] as? [[String: Any]] {
+                rows.append(KeyValueRow("Partitions", "\(blkx.count)"))
+                for (index, block) in blkx.prefix(32).enumerated() {
+                    let name = (block["Name"] as? String)?
+                        .trimmingCharacters(in: .whitespaces) ?? "Partition \(index)"
+                    partitionRows.append(KeyValueRow("\(index)", name))
+                }
+            }
+        }
+
+        var sections: [PreviewSection] = [.keyValues(title: "Summary", rows: rows)]
+        if !partitionRows.isEmpty {
+            sections.append(.keyValues(title: "Partitions", rows: partitionRows))
+        }
+        return PreviewDocument(
+            title: file.url.lastPathComponent,
+            subtitle: "Apple Disk Image",
+            iconSystemName: "externaldrive",
+            sections: sections
+        )
     }
 
     /// Unix ar archives (.deb packages, .a static libraries): 60-byte

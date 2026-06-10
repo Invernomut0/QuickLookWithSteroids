@@ -57,6 +57,8 @@
 				<string>com.omnipreview.woff</string>
 				<string>public.png</string>
 				<string>public.geojson</string>
+				<string>public.yaml</string>
+				<string>com.apple.disk-image-udif</string>
 			</array>
 			<key>QLSupportsSearchableItems</key>
 			<false/>

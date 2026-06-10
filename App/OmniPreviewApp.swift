@@ -81,6 +81,9 @@ struct SettingsButton: View {
 struct ContentView: View {
     @State private var previewedDocument: PreviewDocument?
     @State private var previewError: String?
+    @State private var previewedURL: URL?
+    @State private var previewedIsImage = false
+    @State private var showAnnotationEditor = false
 
     var body: some View {
         Group {
@@ -107,8 +110,26 @@ struct ContentView: View {
             }
         }
         .toolbar {
+            if previewedIsImage, let previewedURL {
+                Button {
+                    showAnnotationEditor = true
+                } label: {
+                    Label("Annotate", systemImage: "pencil.tip.crop.circle")
+                }
+                .help("Open the annotation editor (pen, lines, rectangles, text)")
+                .id(previewedURL)
+            }
             if previewedDocument != nil {
-                Button("Clear") { previewedDocument = nil }
+                Button("Clear") {
+                    previewedDocument = nil
+                    previewedURL = nil
+                    previewedIsImage = false
+                }
+            }
+        }
+        .sheet(isPresented: $showAnnotationEditor) {
+            if let previewedURL {
+                ImageAnnotationView(imageURL: previewedURL)
             }
         }
         .onDrop(of: [.fileURL], isTargeted: nil) { providers in
@@ -118,9 +139,17 @@ struct ContentView: View {
                 Task { @MainActor in
                     do {
                         previewedDocument = try await PreviewPipeline.shared.document(for: url)
+                        previewedURL = url
+                        if case .image = (try? FileTypeDetector.detect(url: url))?.kind {
+                            previewedIsImage = true
+                        } else {
+                            previewedIsImage = false
+                        }
                         previewError = nil
                     } catch {
                         previewedDocument = nil
+                        previewedURL = nil
+                        previewedIsImage = false
                         previewError = error.localizedDescription
                     }
                 }

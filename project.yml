@@ -48,7 +48,8 @@ targets:
       path: App/OmniPreview.entitlements
       properties:
         com.apple.security.app-sandbox: true
-        com.apple.security.files.user-selected.read-only: true
+        # read-write so the annotation editor can export via NSSavePanel
+        com.apple.security.files.user-selected.read-write: true
     info:
       path: App/Info.plist
       properties:
@@ -180,6 +181,8 @@ targets:
               - com.omnipreview.woff
               - public.png
               - public.geojson
+              - public.yaml
+              - com.apple.disk-image-udif
             QLSupportsSearchableItems: false
 
   ThumbnailExtension:

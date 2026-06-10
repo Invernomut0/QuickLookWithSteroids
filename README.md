@@ -33,7 +33,10 @@ A native macOS Quick Look extension framework that brings rich previews to file 
 | Terraform | `.tfstate` | Versions, resource counts by type |
 | Certificates | PEM, DER, CRT, CER, P12/PFX | Subject, issuer, serial, validity (expiry flag) |
 | Fonts | TTF, OTF, TTC, WOFF, WOFF2 | Family, style, glyphs, live specimen; WOFF header metadata |
+| YAML | `.yaml`, `.yml` | Recognizes **Kubernetes manifests** (kind/name/images), **Docker Compose** (services), **GitHub Actions** (jobs/steps); top-level key summary + content |
 | Source code | 30+ extensions | Content, language, line count, encoding detection |
+
+DMG previews include the **partition list** read from the UDIF XML plist (blkx entries) alongside uncompressed size and version.
 
 \* MKV/WebM are detected and labeled; AVFoundation cannot decode their streams, so track details are limited.
 
@@ -56,6 +59,8 @@ open build/Build/Products/Debug/OmniPreview.app
 Launching the app once registers both Quick Look extensions with the system. Enable them under **System Settings → General → Login Items & Extensions → Quick Look**, then press Space on a supported file in Finder. To force Quick Look to pick up changes during development: `qlmanage -r && qlmanage -r cache`.
 
 The app adds an **eye icon to the menu bar** with quick access to the preview tester, Settings (menu bar visibility, per-plugin enable/disable, cache clearing), the System Settings extension pane, and About. The main window doubles as a renderer test bench — drop any file onto it.
+
+When the previewed file is an image, an **Annotate** toolbar button opens a markup editor with pen, line, rectangle, and text tools (color picker, stroke width, undo/clear). Annotations are stored in normalized coordinates and exported as PNG at the image's **native resolution** via Save PNG….
 
 ## IDE Setup (VS Code / SourceKit-LSP)
 
