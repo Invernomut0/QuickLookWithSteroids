@@ -7,10 +7,13 @@ struct OmniPreviewApp: App {
     @AppStorage("showMenuBarIcon") private var showMenuBarIcon = true
 
     var body: some Scene {
-        WindowGroup(id: "tester") {
+        // The Dock icon is suppressed by LSUIElement in Info.plist.
+        // The tester window is opened on demand from the menu bar menu.
+        Window("Preview Tester", id: "tester") {
             ContentView()
                 .frame(minWidth: 560, minHeight: 420)
         }
+        .commandsRemoved()
 
         MenuBarExtra("OmniPreview", systemImage: "eye", isInserted: $showMenuBarIcon) {
             MenuBarMenu()

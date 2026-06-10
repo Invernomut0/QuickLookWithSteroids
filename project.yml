@@ -54,11 +54,12 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: OmniPreview
-        CFBundleShortVersionString: "0.2.0"
-        CFBundleVersion: "2"
+        CFBundleShortVersionString: "0.3.0"
+        CFBundleVersion: "3"
         NSHumanReadableCopyright: "© 2026 Lorenzo Vismara — MIT License"
         LSMinimumSystemVersion: "13.0"
         LSApplicationCategoryType: public.app-category.utilities
+        LSUIElement: true
         UTImportedTypeDeclarations:
           - UTTypeIdentifier: com.omnipreview.safetensors
             UTTypeDescription: Safetensors Model
