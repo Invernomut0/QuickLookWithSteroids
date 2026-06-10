@@ -4,12 +4,14 @@ import OmniPreviewCore
 struct SettingsView: View {
     var body: some View {
         TabView {
+            LicenseSettingsView()
+                .tabItem { Label("License", systemImage: "key.fill") }
             GeneralSettingsView()
                 .tabItem { Label("General", systemImage: "gear") }
             PluginSettingsView()
                 .tabItem { Label("Plugins", systemImage: "puzzlepiece.extension") }
         }
-        .frame(width: 440)
+        .frame(width: 480)
     }
 }
 

@@ -26,6 +26,7 @@ public enum PreviewSection: Sendable {
     case image(URL)
     case imageData(Data)
     case model3D(URL)
+    case proLocked(formatName: String, iconSystemName: String)
     case note(String)
 }
 

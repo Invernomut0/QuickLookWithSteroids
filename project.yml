@@ -50,6 +50,8 @@ targets:
         com.apple.security.app-sandbox: true
         # read-write so the annotation editor can export via NSSavePanel
         com.apple.security.files.user-selected.read-write: true
+        # required for Gumroad license verification
+        com.apple.security.network.client: true
     info:
       path: App/Info.plist
       properties:

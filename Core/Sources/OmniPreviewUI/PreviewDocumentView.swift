@@ -186,6 +186,9 @@ private struct SectionView: View {
             // Handled at the top level by FolderPreviewView; not rendered here.
             EmptyView()
 
+        case .proLocked(let formatName, let icon):
+            ProLockedView(formatName: formatName, iconSystemName: icon)
+
         case .note(let text):
             Text(text)
                 .font(.footnote)
@@ -447,6 +450,65 @@ private struct FolderRowView: View {
             return date.formatted(.dateTime.month(.abbreviated).day())
         }
         return date.formatted(.dateTime.month(.abbreviated).day().year())
+    }
+}
+
+// MARK: Pro locked state
+
+struct ProLockedView: View {
+    let formatName: String
+    let iconSystemName: String
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Spacer(minLength: 24)
+
+            ZStack {
+                Circle()
+                    .fill(Color.accentColor.opacity(0.08))
+                    .frame(width: 80, height: 80)
+                Image(systemName: iconSystemName)
+                    .font(.system(size: 30, weight: .medium))
+                    .foregroundStyle(Color.accentColor.opacity(0.7))
+            }
+            .overlay(alignment: .bottomTrailing) {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(5)
+                    .background(Color.secondary, in: Circle())
+                    .offset(x: 4, y: 4)
+            }
+
+            VStack(spacing: 6) {
+                Text(formatName)
+                    .font(.title3.weight(.semibold))
+
+                Text("This format requires OmniPreview Pro.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+
+            VStack(spacing: 8) {
+                Link(destination: URL(string: "https://invernomuto2.gumroad.com/l/lghiqc")!) {
+                    Text("Get OmniPreview Pro →")
+                        .font(.callout.weight(.medium))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .background(Color.accentColor, in: Capsule())
+                }
+
+                Text("Then activate your key in OmniPreview → Settings → License")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .multilineTextAlignment(.center)
+            }
+
+            Spacer(minLength: 24)
+        }
+        .padding(32)
+        .frame(maxWidth: .infinity)
     }
 }
 

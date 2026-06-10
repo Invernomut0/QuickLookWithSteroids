@@ -49,6 +49,18 @@ public enum RendererRegistry {
     ]
 
     public static func renderer(for file: DetectedFile) -> (any PreviewRenderer)? {
-        all.first { RendererSettings.isEnabled(id: type(of: $0).id) && $0.canRender(file) }
+        guard let match = all.first(where: {
+            RendererSettings.isEnabled(id: type(of: $0).id) && $0.canRender(file)
+        }) else { return nil }
+
+        let rid = type(of: match).id
+        if ProTier.isPro(rendererID: rid) && !LicenseManager.shared.isProUnlocked {
+            let info = ProTier.proFeatureDescriptions.first { $0.id == rid }
+            return LockedRenderer(
+                formatName: info?.name ?? type(of: match).displayName,
+                iconSystemName: info?.icon ?? "lock.fill"
+            )
+        }
+        return match
     }
 }

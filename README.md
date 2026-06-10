@@ -14,7 +14,7 @@ Quick Look is one of macOS's most beloved features, but hundreds of modern file 
 
 ### Key Features
 
-- **29 renderer plugins** covering 100+ file formats
+- **29 renderer plugins** covering 100+ file formats — **17 Free, 12 Pro**
 - **Syntax-highlighted source code** for 50+ languages — Swift, Python, TypeScript, Go, Rust, Kotlin, JSON, XML, YAML, SQL, and many more
 - **Rendered Markdown** — headings, code blocks with highlighting, tables, lists, blockquotes
 - **Finder-style folder and archive browser** — expand/collapse tree with Name, Kind, Size and Date Modified columns, file type icons, relative dates (Today at 14:32, Yesterday…)
@@ -26,6 +26,46 @@ Quick Look is one of macOS's most beloved features, but hundreds of modern file 
 - Native Dark and Light Mode
 - Sandboxed Quick Look extensions
 - Low memory footprint — read-only rendering pipeline
+
+---
+
+## Free vs Pro
+
+OmniPreview is useful out of the box. The free tier covers every essential developer workflow. **Pro** unlocks the high-value analysis features for ML engineers, data scientists, 3D artists and creative professionals.
+
+| Renderer | Free | Pro |
+|---|:---:|:---:|
+| ZIP, TAR, Gzip/XZ listing | ✓ | |
+| 7z, RAR, ISO, DMG, DEB, RPM, PKG… metadata | ✓ | |
+| SQLite schema & row counts | ✓ | |
+| PDF metadata & bookmarks | ✓ | |
+| Source code with syntax highlighting (50+ languages) | ✓ | |
+| Markdown with rendered blocks | ✓ | |
+| Folder browser (Finder-style) | ✓ | |
+| Images — dimensions, EXIF, AI generation metadata | ✓ | |
+| Fonts — specimen & metadata | ✓ | |
+| X.509 certificates | ✓ | |
+| INI / YAML / JSON / TOML | ✓ | |
+| GIS — GeoJSON, KML, Shapefile | ✓ | |
+| Torrents | ✓ | |
+| Database dumps & Terraform state | ✓ | |
+| CAD — DXF, STEP, DWG, IGES | ✓ | |
+| **Office — DOCX, XLSX, PPTX, ODT…** | | ✓ |
+| **eBooks — EPUB with cover, MOBI, AZW3, FB2, CBZ** | | ✓ |
+| **Audio & Video — codecs, bitrate, tags** | | ✓ |
+| **3D models — interactive SceneKit viewer** | | ✓ |
+| **GGUF / LLM models** | | ✓ |
+| **Safetensors models** | | ✓ |
+| **ONNX models** | | ✓ |
+| **NumPy arrays & NPZ archives** | | ✓ |
+| **App packages — JAR, APK, IPA, PyTorch** | | ✓ |
+| **Scientific data — Parquet, HDF5, FITS, NetCDF, MATLAB** | | ✓ |
+| **VM disk images — QCOW2, VMDK, VHDX** | | ✓ |
+| **GPU textures — QOI, DDS, TGA, KTX/KTX2, HDR** | | ✓ |
+
+**[Get OmniPreview Pro →](https://invernomuto2.gumroad.com/l/lghiqc)**
+
+After purchase, enter your license key in **OmniPreview → Settings → License**.
 
 ---
 
