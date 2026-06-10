@@ -144,32 +144,14 @@ struct ContentView: View {
                 .id(previewedURL)
             }
 
-            // Video trim (Pro)
-            if previewedIsVideo {
-                if isPro {
-                    Button {
-                        showVideoTrimSheet = true
-                    } label: {
-                        Label("Trim Video", systemImage: "scissors")
-                    }
-                    .help("Trim and export this video (Pro)")
-                } else {
-                    Button {} label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "scissors")
-                            Text("Trim Video")
-                            Text("PRO")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 2)
-                                .background(Color.accentColor.opacity(0.75), in: Capsule())
-                        }
-                    }
-                    .help("Video trimming requires OmniPreview Pro")
-                    .disabled(true)
-                    .opacity(0.7)
+            // Video trim (Pro only — hidden for free users)
+            if previewedIsVideo && isPro {
+                Button {
+                    showVideoTrimSheet = true
+                } label: {
+                    Label("Trim Video", systemImage: "scissors")
                 }
+                .help("Trim and export this video")
             }
 
             if previewedDocument != nil {

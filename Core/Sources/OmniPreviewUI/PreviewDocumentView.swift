@@ -249,11 +249,11 @@ private struct TextSectionView: View {
                 CodeView(attributedString: attributed).frame(height: height)
             }
         } else {
-            plainTextBox
+            plainCodeBox
         }
     }
 
-    // MARK: Free path — plain text + upgrade nudge when a richer view is available
+    // MARK: Free path — plain monospace text via NSTextView + upgrade nudge
 
     @ViewBuilder
     private var freeView: some View {
@@ -261,20 +261,25 @@ private struct TextSectionView: View {
             VStack(spacing: 0) {
                 ProNudge(feature: language?.lowercased() == "markdown"
                          ? "Formatted Markdown" : "Syntax Highlighting")
-                plainTextBox
+                plainCodeBox
             }
         } else {
-            plainTextBox
+            plainCodeBox
         }
     }
 
-    private var plainTextBox: some View {
-        GroupBox {
-            Text(content)
-                .font(.system(.callout, design: .monospaced))
-                .textSelection(.enabled)
-                .padding(8)
-                .frame(maxWidth: .infinity, alignment: .leading)
+    // Always use NSTextView (CodeView) rather than SwiftUI Text — Text with
+    // thousands of lines causes SwiftUI layout to stall, which manifests as
+    // an infinite loading spinner in the Quick Look extension.
+    private var plainCodeBox: some View {
+        let plain = NSAttributedString(string: content, attributes: [
+            .font: NSFont.monospacedSystemFont(ofSize: 12, weight: .regular),
+            .foregroundColor: NSColor.labelColor,
+        ])
+        let height = CodeView.estimatedHeight(for: content)
+        return GroupBox {
+            CodeView(attributedString: plain)
+                .frame(height: height)
         }
     }
 }
