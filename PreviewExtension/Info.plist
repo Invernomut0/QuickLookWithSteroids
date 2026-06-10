@@ -59,6 +59,8 @@
 				<string>public.png</string>
 				<string>public.mpeg-4</string>
 				<string>com.apple.quicktime-movie</string>
+				<string>com.apple.m4v-video</string>
+				<string>public.mpeg-2-transport-stream</string>
 				<string>public.avi</string>
 				<string>public.mp3</string>
 				<string>com.apple.m4a-audio</string>
@@ -116,6 +118,7 @@
 				<string>com.omnipreview.dart</string>
 				<string>com.omnipreview.scala</string>
 				<string>com.omnipreview.toml</string>
+				<string>public.toml</string>
 				<string>com.omnipreview.ini</string>
 				<string>com.microsoft.ini</string>
 				<string>com.apple.log</string>
@@ -155,6 +158,7 @@
 				<string>public.geojson</string>
 				<string>com.omnipreview.geojson</string>
 				<string>com.google.earth.kml</string>
+				<string>com.omnipreview.kml</string>
 				<string>com.omnipreview.pytorch</string>
 				<string>com.omnipreview.swift-package-manifest</string>
 				<string>com.rsa.pkcs-12</string>

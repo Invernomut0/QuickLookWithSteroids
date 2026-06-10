@@ -56,8 +56,8 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: OmniPreview
-        CFBundleShortVersionString: "0.3.3"
-        CFBundleVersion: "6"
+        CFBundleShortVersionString: "0.3.4"
+        CFBundleVersion: "7"
         NSHumanReadableCopyright: "© 2026 Lorenzo Vismara — MIT License"
         LSMinimumSystemVersion: "13.0"
         LSApplicationCategoryType: public.app-category.utilities
@@ -133,6 +133,11 @@ targets:
             UTTypeConformsTo: [public.data]
             UTTypeTagSpecification:
               public.filename-extension: [shp]
+          - UTTypeIdentifier: com.omnipreview.kml
+            UTTypeDescription: KML / KMZ Document
+            UTTypeConformsTo: [public.xml, public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [kml, kmz]
           # ── Source code: types macOS doesn't know ─────────────────────────
           - UTTypeIdentifier: com.omnipreview.typescript
             UTTypeDescription: TypeScript Source
@@ -335,6 +340,10 @@ targets:
               - public.png
               - public.mpeg-4
               - com.apple.quicktime-movie
+              - com.apple.m4v-video
+              # macOS maps .ts to mpeg-2-transport-stream by default; we
+              # override the rendering inside our pipeline based on content.
+              - public.mpeg-2-transport-stream
               - public.avi
               - public.mp3
               - com.apple.m4a-audio
@@ -400,6 +409,8 @@ targets:
               - com.omnipreview.scala
               # ── Config & text ─────────────────────────────────────────────
               - com.omnipreview.toml
+              # macOS resolves .cfg and .toml to public.toml.
+              - public.toml
               - com.omnipreview.ini
               - com.microsoft.ini
               - com.apple.log
@@ -446,6 +457,7 @@ targets:
               - public.geojson
               - com.omnipreview.geojson
               - com.google.earth.kml
+              - com.omnipreview.kml
               # ── ML / Scientific ───────────────────────────────────────────
               - com.omnipreview.pytorch
               - com.omnipreview.swift-package-manifest
