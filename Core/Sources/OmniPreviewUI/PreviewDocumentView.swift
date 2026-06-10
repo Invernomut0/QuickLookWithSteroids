@@ -19,7 +19,11 @@ public struct PreviewDocumentView: View {
         // Folder previews get a dedicated full-height List view; all other
         // types use the generic scrollable section layout.
         if let folderSection = document.sections.compactMap({ if case .folderTree(let n) = $0 { return n } else { return nil } }).first {
-            FolderPreviewView(document: document, nodes: folderSection)
+            FolderPreviewView(
+                document: document,
+                nodes: folderSection,
+                isArchive: document.iconSystemName == "doc.zipper"
+            )
         } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -217,69 +221,130 @@ private struct Model3DView: View {
     }
 }
 
-// MARK: Folder Preview (Finder-style)
+// MARK: Finder-style tree view (folders + ZIP archives)
 
-/// Full-height folder preview: a summary header plus a native List with
-/// expand/collapse triangles, type icons, sizes, and modification dates —
-/// matching the Finder "Name" sort (folders first, then files).
-private struct FolderPreviewView: View {
+/// Column layout constants shared by the header and every row.
+private enum FileListColumns {
+    static let kind: CGFloat = 126
+    static let size: CGFloat = 70
+    static let date: CGFloat = 140
+    /// Left padding to align with the List's built-in disclosure area.
+    static let listInset: CGFloat = 8
+}
+
+/// Full-height Finder-style preview with disclosure triangles, Kind / Size /
+/// Date Modified columns, alternating row tints, and relative dates.
+/// Used for both folder previews and ZIP archive previews.
+struct FolderPreviewView: View {
     let document: PreviewDocument
     let nodes: [FolderNode]
+    /// True when showing a ZIP archive (changes the icon and status bar text).
+    var isArchive: Bool = false
+
+    private var summaryRows: [KeyValueRow] {
+        guard case .keyValues(_, let rows) = document.sections.first else { return [] }
+        return rows
+    }
 
     var body: some View {
         VStack(spacing: 0) {
-            // Summary strip
-            if let summarySection = document.sections.first,
-               case .keyValues(_, let rows) = summarySection {
-                HStack(spacing: 16) {
-                    Image(systemName: "folder.fill")
-                        .font(.system(size: 20))
-                        .foregroundStyle(.secondary)
-                    Text(document.title)
-                        .font(.headline)
-                    Spacer()
-                    ForEach(rows.prefix(4)) { row in
-                        VStack(alignment: .trailing, spacing: 1) {
-                            Text(row.value)
-                                .font(.callout.monospacedDigit())
-                            Text(row.key)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
+            titleBar
+            columnHeader
+            fileList
+            statusBar
+        }
+        .background(Color(nsColor: .textBackgroundColor))
+    }
+
+    // MARK: Sub-views
+
+    private var titleBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: isArchive ? "doc.zipper" : "folder.fill")
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(isArchive ? Color.secondary : Color.accentColor)
+                .font(.system(size: 16, weight: .medium))
+
+            Text(document.title)
+                .font(.system(size: 13, weight: .semibold))
+                .lineLimit(1)
+                .truncationMode(.middle)
+
+            Spacer()
+
+            // Compact stats badges
+            HStack(spacing: 12) {
+                ForEach(summaryRows.filter { !$0.key.hasPrefix("Note") && $0.key != "Space saved" }.prefix(4)) { row in
+                    VStack(alignment: .trailing, spacing: 0) {
+                        Text(row.value)
+                            .font(.system(size: 11, weight: .medium).monospacedDigit())
+                        Text(row.key)
+                            .font(.system(size: 9))
+                            .foregroundStyle(.secondary)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(.bar)
-
-                Divider()
             }
-
-            // Column header
-            HStack(spacing: 0) {
-                Text("Name")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                Text("Size")
-                    .frame(width: 80, alignment: .trailing)
-                Text("Modified")
-                    .frame(width: 140, alignment: .trailing)
-            }
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 5)
-            .background(Color(nsColor: .controlBackgroundColor))
-
-            Divider()
-
-            // Outline tree
-            List(nodes, children: \.children) { node in
-                FolderRowView(node: node)
-                    .listRowSeparator(.hidden)
-            }
-            .listStyle(.plain)
-            .environment(\.defaultMinListRowHeight, 22)
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Material.bar)
+        .overlay(Divider(), alignment: .bottom)
+    }
+
+    private var columnHeader: some View {
+        HStack(spacing: 0) {
+            Text("Name")
+                .padding(.leading, FileListColumns.listInset + 2)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Divider().frame(height: 14).opacity(0.4)
+            Text("Kind")
+                .frame(width: FileListColumns.kind, alignment: .leading)
+                .padding(.leading, 8)
+            Divider().frame(height: 14).opacity(0.4)
+            Text("Size")
+                .frame(width: FileListColumns.size, alignment: .trailing)
+                .padding(.trailing, 8)
+            Divider().frame(height: 14).opacity(0.4)
+            Text("Date Modified")
+                .frame(width: FileListColumns.date, alignment: .trailing)
+                .padding(.trailing, 8)
+        }
+        .font(.system(size: 11, weight: .medium))
+        .foregroundStyle(.secondary)
+        .frame(height: 22)
+        .background(Color(nsColor: .controlBackgroundColor).opacity(0.7))
+        .overlay(Divider(), alignment: .bottom)
+    }
+
+    private var fileList: some View {
+        List(nodes, children: \.children) { node in
+            FolderRowView(node: node)
+        }
+        .listStyle(.plain)
+        .environment(\.defaultMinListRowHeight, 20)
+        .scrollContentBackground(.hidden)
+    }
+
+    private var statusBar: some View {
+        HStack {
+            Spacer()
+            if let note = summaryRows.first(where: { $0.key == "Note" }) {
+                Text(note.value)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            } else {
+                let total = summaryRows.first { $0.key == "Items" }?.value
+                    ?? summaryRows.first { $0.key == "Files" }?.value
+                    ?? ""
+                Text("\(total) item\(total == "1" ? "" : "s")")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .frame(height: 20)
+        .background(Material.bar)
+        .overlay(Divider(), alignment: .top)
     }
 }
 
@@ -288,49 +353,86 @@ private struct FolderRowView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            // Icon + name
-            HStack(spacing: 5) {
-                Image(systemName: node.iconName)
-                    .font(.system(size: 12))
-                    .foregroundStyle(node.isDirectory ? Color.accentColor : .secondary)
-                    .frame(width: 16)
+            // Icon + Name
+            Label {
                 Text(node.name)
+                    .font(.system(size: 13))
                     .lineLimit(1)
                     .truncationMode(.middle)
+            } icon: {
+                Image(systemName: node.iconName)
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(node.isDirectory ? Color.accentColor : Color.secondary)
+                    .font(.system(size: 13))
+                    .frame(width: 16, alignment: .center)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, FileListColumns.listInset)
 
-            // Size / item count
+            // Kind
+            Text(node.kindLabel)
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .frame(width: FileListColumns.kind, alignment: .leading)
+                .padding(.leading, 8)
+
+            // Size
             Group {
                 if node.isDirectory {
-                    if let count = node.childCount, count > 0 {
+                    if let count = node.childCount {
                         Text("\(count) item\(count == 1 ? "" : "s")")
                     } else {
                         Text("—")
                     }
                 } else if node.size > 0 {
-                    Text(ByteCountFormatter.string(fromByteCount: Int64(clamping: node.size), countStyle: .file))
+                    Text(ByteCountFormatter.string(
+                        fromByteCount: Int64(clamping: node.size), countStyle: .file))
                 } else {
                     Text("—")
                 }
             }
-            .font(.callout.monospacedDigit())
+            .font(.system(size: 11).monospacedDigit())
             .foregroundStyle(.secondary)
-            .frame(width: 80, alignment: .trailing)
+            .lineLimit(1)
+            .frame(width: FileListColumns.size, alignment: .trailing)
+            .padding(.trailing, 8)
 
-            // Modification date
-            Group {
-                if let date = node.modified {
-                    Text(date.formatted(.dateTime.day().month(.abbreviated).year().hour().minute()))
-                } else {
-                    Text("—")
-                }
-            }
-            .font(.callout)
-            .foregroundStyle(.secondary)
-            .frame(width: 140, alignment: .trailing)
+            // Date Modified
+            Text(node.modified.map { Self.formatDate($0) } ?? "—")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .frame(width: FileListColumns.date, alignment: .trailing)
+                .padding(.trailing, 8)
         }
-        .font(.callout)
+        .frame(height: 20)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        .listRowSeparator(.hidden)
+    }
+
+    // Finder-style: relative for recent, absolute for older.
+    private static func formatDate(_ date: Date) -> String {
+        let now = Date()
+        let calendar = Calendar.current
+        let seconds = now.timeIntervalSince(date)
+
+        if seconds < 60 { return "Just now" }
+        if calendar.isDateInToday(date) {
+            return "Today at " + date.formatted(date: .omitted, time: .shortened)
+        }
+        if calendar.isDateInYesterday(date) {
+            return "Yesterday at " + date.formatted(date: .omitted, time: .shortened)
+        }
+        if seconds < 7 * 24 * 3600 {
+            // Within the last week: show weekday name.
+            let weekday = date.formatted(Date.FormatStyle().weekday(.wide))
+            return weekday + " at " + date.formatted(date: .omitted, time: .shortened)
+        }
+        if calendar.isDate(date, equalTo: now, toGranularity: .year) {
+            return date.formatted(.dateTime.month(.abbreviated).day())
+        }
+        return date.formatted(.dateTime.month(.abbreviated).day().year())
     }
 }
 

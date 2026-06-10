@@ -43,7 +43,8 @@ public enum RendererRegistry {
         DumpRenderer(),
         CertificateRenderer(),
         FontRenderer(),
-        YAMLRenderer(), // before the generic source-code renderer
+        YAMLRenderer(),  // before source-code
+        INIRenderer(),   // before source-code
         SourceCodeRenderer(),
     ]
 

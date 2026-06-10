@@ -41,12 +41,15 @@ public final class FolderNode: Sendable, Identifiable {
     public let childCount: Int?
     public let modified: Date?
     public let iconName: String
+    /// Human-readable kind label (e.g. "JPEG Image", "Swift Source", "Folder").
+    public let kindLabel: String
     /// `nil` for files; non-nil (possibly empty) for directories.
     public let children: [FolderNode]?
 
     public init(
         name: String, isDirectory: Bool, size: UInt64,
         childCount: Int? = nil, modified: Date?, iconName: String,
+        kindLabel: String = "",
         children: [FolderNode]? = nil
     ) {
         self.id = UUID()
@@ -56,6 +59,7 @@ public final class FolderNode: Sendable, Identifiable {
         self.childCount = childCount
         self.modified = modified
         self.iconName = iconName
+        self.kindLabel = kindLabel.isEmpty ? (isDirectory ? "Folder" : "Document") : kindLabel
         self.children = children
     }
 }

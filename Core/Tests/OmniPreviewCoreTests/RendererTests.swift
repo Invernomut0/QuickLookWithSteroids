@@ -29,14 +29,17 @@ final class RendererTests: XCTestCase {
         XCTAssertEqual(file.kind, .zip)
 
         let document = try ZIPRenderer().render(file)
-        guard case .fileTree(_, let entries) = document.sections[1] else {
-            return XCTFail("expected file tree section")
+        // ZIP now uses a folderTree section (unified Finder-style view).
+        guard case .folderTree(let nodes) = document.sections[1] else {
+            return XCTFail("expected folderTree section")
         }
-        XCTAssertEqual(entries.count, 3)
-        XCTAssertEqual(entries[0].path, "docs/")
-        XCTAssertTrue(entries[0].isDirectory)
-        XCTAssertEqual(entries[1].uncompressedSize, 11)
-        XCTAssertEqual(entries[2].uncompressedSize, 1024)
+        // Tree is sorted: folders first, then files.
+        XCTAssertEqual(nodes.first?.name, "docs")
+        XCTAssertTrue(nodes.first!.isDirectory)
+        XCTAssertEqual(nodes.first!.children?.first?.name, "readme.txt")
+        XCTAssertEqual(nodes.first!.children?.first?.size, 11)
+        XCTAssertEqual(nodes.last?.name, "image.png")
+        XCTAssertEqual(nodes.last?.size, 1024)
     }
 
     func testZIPRejectsGarbage() throws {

@@ -23,6 +23,42 @@ final class YAMLAndDMGTests: XCTestCase {
         return rows
     }
 
+    // MARK: INI
+
+    func testINIParserSectionsAndValues() throws {
+        let ini = """
+        ; global comment
+        global_key = global_value
+
+        [Database]
+        host = localhost
+        port = 5432
+        name = myapp
+
+        [Cache]
+        backend = redis
+        url = redis://127.0.0.1:6379 ; inline comment stripped
+        """
+        let parsed = INIRenderer.parse(ini)
+        XCTAssertEqual(parsed.order, ["", "Database", "Cache"])
+        XCTAssertEqual(parsed.sections[""]?.first { $0.key == "global_key" }?.value, "global_value")
+        XCTAssertEqual(parsed.sections["Database"]?.first { $0.key == "host" }?.value, "localhost")
+        XCTAssertEqual(parsed.sections["Database"]?.first { $0.key == "port" }?.value, "5432")
+        XCTAssertEqual(parsed.sections["Cache"]?.first { $0.key == "url" }?.value, "redis://127.0.0.1:6379")
+    }
+
+    func testINIRendererProducesSections() throws {
+        let ini = "[Server]\nport = 8080\nhost = 0.0.0.0\n"
+        let file = try detect(Data(ini.utf8), name: "config.ini")
+        let document = try INIRenderer().render(file)
+        // Section 0 = summary, section 1 = [Server]
+        guard case .keyValues(let title, let rows) = document.sections[1] else {
+            return XCTFail("expected [Server] section")
+        }
+        XCTAssertEqual(title, "[Server]")
+        XCTAssertEqual(rows.first { $0.key == "port" }?.value, "8080")
+    }
+
     // MARK: YAML
 
     func testKubernetesManifestDetection() throws {

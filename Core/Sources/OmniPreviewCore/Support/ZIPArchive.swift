@@ -189,4 +189,81 @@ struct ZIPArchive {
             )
         }
     }
+
+    /// Builds a `FolderNode` tree from the flat central-directory entry list.
+    /// Implicit parent directories (paths with no dedicated directory entry)
+    /// are synthesised so the tree is always well-formed.
+    func buildTree() -> [FolderNode] {
+        // Use a mutable trie during construction, convert to value types at the end.
+        let root = MutableNode(name: "", isDirectory: true, size: 0, modified: nil)
+
+        for entry in entries {
+            // Normalise: strip trailing slash from directory paths.
+            let path = entry.path.hasSuffix("/") ? String(entry.path.dropLast()) : entry.path
+            guard !path.isEmpty else { continue }
+            let components = path.split(separator: "/", omittingEmptySubsequences: true).map(String.init)
+            root.insert(components: components,
+                        isDirectory: entry.isDirectory,
+                        size: entry.uncompressedSize,
+                        modified: entry.modified)
+        }
+
+        return root.toFolderNodes()
+    }
+
+    // MARK: Trie helpers
+
+    private final class MutableNode {
+        let name: String
+        let isDirectory: Bool
+        let size: UInt64
+        let modified: Date?
+        var children: [String: MutableNode] = [:]
+
+        init(name: String, isDirectory: Bool, size: UInt64, modified: Date?) {
+            self.name = name; self.isDirectory = isDirectory
+            self.size = size; self.modified = modified
+        }
+
+        func insert(components: [String], isDirectory: Bool, size: UInt64, modified: Date?) {
+            guard let first = components.first else { return }
+            let rest = Array(components.dropFirst())
+            if rest.isEmpty {
+                // Leaf — update existing synthetic node or insert new one.
+                if let existing = children[first] {
+                    // Already synthesised as a directory; keep it, update metadata.
+                    _ = existing
+                } else {
+                    children[first] = MutableNode(name: first, isDirectory: isDirectory,
+                                                  size: size, modified: modified)
+                }
+            } else {
+                // Intermediate directory — synthesise if absent.
+                let node = children[first] ?? MutableNode(name: first, isDirectory: true, size: 0, modified: nil)
+                children[first] = node
+                node.insert(components: rest, isDirectory: isDirectory, size: size, modified: modified)
+            }
+        }
+
+        func toFolderNodes() -> [FolderNode] {
+            let sorted = children.values.sorted { a, b in
+                if a.isDirectory != b.isDirectory { return a.isDirectory }
+                return a.name.localizedStandardCompare(b.name) == .orderedAscending
+            }
+            return sorted.map { node in
+                let ext = (node.name as NSString).pathExtension.lowercased()
+                let childNodes = node.isDirectory ? node.toFolderNodes() : nil
+                return FolderNode(
+                    name: node.name,
+                    isDirectory: node.isDirectory,
+                    size: node.size,
+                    childCount: childNodes?.count,
+                    modified: node.modified,
+                    iconName: FolderRenderer.iconName(ext: ext, isDirectory: node.isDirectory),
+                    kindLabel: FolderRenderer.kindLabel(ext: ext, isDirectory: node.isDirectory),
+                    children: childNodes
+                )
+            }
+        }
+    }
 }
