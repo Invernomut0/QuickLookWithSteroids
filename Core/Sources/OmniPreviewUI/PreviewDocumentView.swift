@@ -105,13 +105,27 @@ private struct SectionView: View {
                 .padding(8)
             }
 
-        case .text(let content, _):
-            GroupBox {
-                Text(content)
-                    .font(.system(.body, design: .monospaced))
-                    .textSelection(.enabled)
-                    .padding(8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        case .text(let content, let language):
+            if language?.lowercased() == "markdown" {
+                GroupBox {
+                    MarkdownView(source: content)
+                        .padding(8)
+                }
+            } else if let language {
+                let attributed = SyntaxHighlighter.highlight(content, language: language)
+                let height = CodeView.estimatedHeight(for: content)
+                GroupBox {
+                    CodeView(attributedString: attributed)
+                        .frame(height: height)
+                }
+            } else {
+                GroupBox {
+                    Text(content)
+                        .font(.system(.callout, design: .monospaced))
+                        .textSelection(.enabled)
+                        .padding(8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
 
         case .table(let title, let columns, let rows):
