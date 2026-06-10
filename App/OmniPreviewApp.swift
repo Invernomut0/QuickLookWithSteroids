@@ -4,11 +4,13 @@ import OmniPreviewUI
 
 @main
 struct OmniPreviewApp: App {
+    // Keeps the process alive after all windows close (see AppDelegate).
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("showMenuBarIcon") private var showMenuBarIcon = true
 
     var body: some Scene {
-        // The Dock icon is suppressed by LSUIElement in Info.plist.
-        // The tester window is opened on demand from the menu bar menu.
+        // LSUIElement=true suppresses the Dock icon.
+        // The tester window is opened on demand from the menu.
         Window("Preview Tester", id: "tester") {
             ContentView()
                 .frame(minWidth: 560, minHeight: 420)
@@ -39,20 +41,22 @@ struct MenuBarMenu: View {
         SettingsButton()
 
         Button("Quick Look Extensions…") {
-            // System Settings pane where the user enables the extensions.
             NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.ExtensionsPreferences")!)
         }
 
         Divider()
 
         Button("About OmniPreview") {
-            NSApp.activate(ignoringOtherApps: true)
+            // Do NOT call NSApp.activate before the panel — for LSUIElement
+            // apps, activating restores the last-open window (Settings),
+            // which is the bug. The About panel works without activation.
             NSApp.orderFrontStandardAboutPanel(options: [
                 .credits: NSAttributedString(
                     string: "Rich Quick Look previews for archives, ML models, databases, certificates, and more.",
                     attributes: [.font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)]
                 ),
             ])
+            NSApp.activate(ignoringOtherApps: true)
         }
 
         Divider()
@@ -64,13 +68,12 @@ struct MenuBarMenu: View {
     }
 }
 
-/// `SettingsLink` exists only on macOS 14+; fall back to the legacy
-/// selector on macOS 13.
+/// Opens the Settings window. For LSUIElement agents the app must be
+/// activated before the Settings scene responds to the open request.
 struct SettingsButton: View {
     var body: some View {
         if #available(macOS 14.0, *) {
-            SettingsLink { Text("Settings…") }
-                .keyboardShortcut(",")
+            OpenSettingsButton()
         } else {
             Button("Settings…") {
                 NSApp.activate(ignoringOtherApps: true)
@@ -78,6 +81,19 @@ struct SettingsButton: View {
             }
             .keyboardShortcut(",")
         }
+    }
+}
+
+@available(macOS 14.0, *)
+private struct OpenSettingsButton: View {
+    @Environment(\.openSettings) private var openSettings
+
+    var body: some View {
+        Button("Settings…") {
+            NSApp.activate(ignoringOtherApps: true)
+            openSettings()
+        }
+        .keyboardShortcut(",")
     }
 }
 
