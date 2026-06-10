@@ -52,18 +52,29 @@ final class ThumbnailProvider: QLThumbnailProvider {
 
     private static func iconName(for kind: FileKind) -> String {
         switch kind {
-        case .zip, .tar, .gzip, .sevenZip, .rar, .xz: return "doc.zipper"
-        case .sqlite: return "cylinder.split.1x2"
-        case .safetensors: return "brain"
-        case .gguf: return "cpu"
-        case .pemCertificate, .derCertificate: return "checkmark.seal"
+        case .zip, .tar, .gzip, .sevenZip, .rar, .xz, .bzip2, .cab, .arArchive, .xar:
+            return "doc.zipper"
+        case .iso, .dmg, .diskImage: return "externaldrive"
+        case .rpmPackage: return "shippingbox"
+        case .compoundFile: return "doc"
+        case .sqlite, .sqlDump: return "cylinder.split.1x2"
+        case .safetensors, .gguf, .onnx: return "brain"
+        case .npy: return "square.grid.3x3"
+        case .dataFile: return "chart.bar.doc.horizontal"
+        case .terraformState: return "square.stack.3d.up"
+        case .torrent: return "arrow.down.circle"
+        case .pemCertificate, .derCertificate, .pkcs12: return "checkmark.seal"
         case .font: return "textformat"
         case .sourceCode: return "chevron.left.forwardslash.chevron.right"
         case .pdf: return "doc.richtext"
         case .image: return "photo"
+        case .texture: return "photo.on.rectangle"
         case .audio: return "waveform"
         case .video: return "film"
-        case .npy: return "square.grid.3x3"
+        case .mobi, .fb2: return "book.closed"
+        case .model3D: return "cube"
+        case .cad: return "compass.drawing"
+        case .geo: return "map"
         case .unknown: return "doc"
         }
     }

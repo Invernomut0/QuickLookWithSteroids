@@ -83,7 +83,52 @@ targets:
             UTTypeDescription: NumPy Array
             UTTypeConformsTo: [public.data]
             UTTypeTagSpecification:
-              public.filename-extension: [npy]
+              public.filename-extension: [npy, npz]
+          - UTTypeIdentifier: com.omnipreview.onnx
+            UTTypeDescription: ONNX Model
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [onnx]
+          - UTTypeIdentifier: com.omnipreview.texture
+            UTTypeDescription: Texture Image
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [qoi, dds, tga, ktx, ktx2, hdr]
+          - UTTypeIdentifier: com.omnipreview.datafile
+            UTTypeDescription: Scientific Data File
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [parquet, arrow, feather, duckdb, h5, hdf5, nc, mat, fits]
+          - UTTypeIdentifier: com.omnipreview.diskimage
+            UTTypeDescription: VM Disk Image
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [qcow2, vmdk, vhdx]
+          - UTTypeIdentifier: com.omnipreview.cad
+            UTTypeDescription: CAD Drawing
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [dxf, dwg, step, stp, iges, igs]
+          - UTTypeIdentifier: com.omnipreview.tfstate
+            UTTypeDescription: Terraform State
+            UTTypeConformsTo: [public.json]
+            UTTypeTagSpecification:
+              public.filename-extension: [tfstate]
+          - UTTypeIdentifier: com.omnipreview.fb2
+            UTTypeDescription: FictionBook eBook
+            UTTypeConformsTo: [public.xml]
+            UTTypeTagSpecification:
+              public.filename-extension: [fb2]
+          - UTTypeIdentifier: com.omnipreview.mobi
+            UTTypeDescription: Kindle eBook
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [mobi, azw3]
+          - UTTypeIdentifier: com.omnipreview.shapefile
+            UTTypeDescription: ESRI Shapefile
+            UTTypeConformsTo: [public.data]
+            UTTypeTagSpecification:
+              public.filename-extension: [shp]
 
   PreviewExtension:
     templates: [QLExtension]
@@ -109,15 +154,32 @@ targets:
               - public.tar-archive
               - org.gnu.gnu-zip-archive
               - org.gnu.gnu-zip-tar-archive
+              - org.7-zip.7-zip-archive
+              - com.rarlab.rar-archive
+              - org.tukaani.xz-archive
+              - public.bzip2-archive
+              - public.iso-image
               - com.omnipreview.sqlite
               - com.omnipreview.safetensors
               - com.omnipreview.gguf
+              - com.omnipreview.onnx
               - com.omnipreview.npy
+              - com.omnipreview.texture
+              - com.omnipreview.datafile
+              - com.omnipreview.diskimage
+              - com.omnipreview.cad
+              - com.omnipreview.tfstate
+              - com.omnipreview.fb2
+              - com.omnipreview.mobi
+              - com.omnipreview.shapefile
+              - org.idpf.epub-container
+              - com.bittorrent.torrent
               - public.x509-certificate
               - public.truetype-font
               - public.opentype-font
               - com.omnipreview.woff
               - public.png
+              - public.geojson
             QLSupportsSearchableItems: false
 
   ThumbnailExtension:

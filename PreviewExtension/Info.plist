@@ -31,15 +31,32 @@
 				<string>public.tar-archive</string>
 				<string>org.gnu.gnu-zip-archive</string>
 				<string>org.gnu.gnu-zip-tar-archive</string>
+				<string>org.7-zip.7-zip-archive</string>
+				<string>com.rarlab.rar-archive</string>
+				<string>org.tukaani.xz-archive</string>
+				<string>public.bzip2-archive</string>
+				<string>public.iso-image</string>
 				<string>com.omnipreview.sqlite</string>
 				<string>com.omnipreview.safetensors</string>
 				<string>com.omnipreview.gguf</string>
+				<string>com.omnipreview.onnx</string>
 				<string>com.omnipreview.npy</string>
+				<string>com.omnipreview.texture</string>
+				<string>com.omnipreview.datafile</string>
+				<string>com.omnipreview.diskimage</string>
+				<string>com.omnipreview.cad</string>
+				<string>com.omnipreview.tfstate</string>
+				<string>com.omnipreview.fb2</string>
+				<string>com.omnipreview.mobi</string>
+				<string>com.omnipreview.shapefile</string>
+				<string>org.idpf.epub-container</string>
+				<string>com.bittorrent.torrent</string>
 				<string>public.x509-certificate</string>
 				<string>public.truetype-font</string>
 				<string>public.opentype-font</string>
 				<string>com.omnipreview.woff</string>
 				<string>public.png</string>
+				<string>public.geojson</string>
 			</array>
 			<key>QLSupportsSearchableItems</key>
 			<false/>

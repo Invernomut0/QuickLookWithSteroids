@@ -26,10 +26,17 @@
        │       │                                   │
        │  RendererRegistry                         │
        │       │                                   │
-       │  PreviewRenderer plugins                  │
-       │  ZIP · TAR · Gzip · SQLite · Safetensors  │
-       │  GGUF · NPY · PDF · Image · Media         │
-       │  Certificate · Font · SourceCode          │
+       │  PreviewRenderer plugins (27)             │
+       │  Archives: ZIP · TAR · Gzip/XZ · 7z/RAR/  │
+       │   CAB/ISO/DMG/DEB/RPM/XAR/MSI metadata    │
+       │  Documents: Office · eBooks · PDF         │
+       │  ML/Data: Safetensors · GGUF · ONNX ·     │
+       │   NPY/NPZ · PyTorch · Parquet/HDF5/FITS…  │
+       │  Media: Image · Texture · Audio/Video     │
+       │  3D/CAD/GIS: SceneKit viewer · DXF/STEP · │
+       │   GeoJSON/KML/SHP · QCOW2/VMDK/VHDX       │
+       │  Misc: SQLite · Dumps · Torrent · Certs · │
+       │   Fonts · SourceCode · Terraform          │
        └───────────────────────────────────────────┘
 ```
 

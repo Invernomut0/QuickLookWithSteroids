@@ -4,23 +4,38 @@ A native macOS Quick Look extension framework that brings rich previews to file 
 
 ## Status
 
-**Phase 1+ — working foundation.** The core framework, the host app, both Quick Look extensions, and thirteen renderer plugins are implemented and tested:
+**27 renderer plugins covering 100+ file formats**, all native Swift with zero third-party dependencies:
 
-| Renderer | Formats | Preview |
+| Family | Formats | Preview |
 |---|---|---|
-| ZIP Archive | `.zip`, `.jar`, … | File tree, sizes, compression ratio — without extracting anything |
-| TAR Archive | `.tar` | File tree with sizes and dates (streaming, GNU long names supported) |
-| Gzip | `.gz`, `.tgz` | Original filename, modification date, producing OS |
-| SQLite | `.sqlite`, `.db`, `.sqlite3` | Schema, tables, column and row counts (read-only, `immutable=1`) |
-| Safetensors | `.safetensors` | Tensor list, dtypes, shapes, parameter count, embedded metadata |
-| GGUF | `.gguf` | Architecture, quantization metadata, tensor count |
-| NumPy | `.npy` | dtype, shape, element count, memory order |
-| PDF | `.pdf` | Page count/size, document info, bookmarks, encryption status |
-| Images | PNG, JPEG, GIF, TIFF, WebP, HEIC, AVIF | Picture, dimensions, color info, EXIF camera data — plus **AI generation metadata** (Automatic1111/Forge parameters, ComfyUI prompt/model/LoRA/sampler/seed) from PNG chunks |
-| Audio/Video | MP3, FLAC, WAV, Ogg, M4A, MP4, MOV, AVI | Duration, codecs, resolution, frame rate, bitrate, tags |
-| Certificates | `.pem`, `.crt`, `.cer`, `.der` | Subject, issuer, serial, validity (with expiry flag) |
-| Fonts | `.ttf`, `.otf`, `.ttc` | Family, style, glyph count, live specimen |
+| ZIP | `.zip`, … | File tree, sizes, compression ratio — listing never decompresses |
+| TAR | `.tar` | File tree (memory-mapped, GNU long names) |
+| Compressed TAR | `.tar.gz`, `.tgz`, `.tar.xz`, `.txz` | Full contents listing via bounded decompression |
+| Gzip / XZ / BZ2 | `.gz`, `.xz`, `.bz2` | Header metadata (original name, date, OS) |
+| Other archives | 7z, RAR, CAB, ISO, DMG, DEB, RPM, PKG (xar), MSI | Format-specific header metadata; DEB/ar gets a member listing, ISO volume info, DMG uncompressed size |
+| Office | DOCX, XLSX, PPTX, ODT, ODS, ODP | Title/author, page/word/slide counts, sheet names, embedded thumbnail |
+| eBooks | EPUB, MOBI, AZW3, FB2, CBZ, CBR | Cover image, title/author/language, spine/page counts |
+| App packages | JAR, WAR, APK, IPA | Manifest key-values, class/DEX counts, native ABIs, iOS app Info.plist |
+| SQLite | `.sqlite`, `.db`, `.sqlite3` | Schema, tables, column/row counts (read-only, `immutable=1`) |
+| DB dumps | PostgreSQL (plain + custom), MySQL | Table list, statement counts, dump version |
+| ML models | Safetensors, GGUF, ONNX, NPY, NPZ, PyTorch | Tensors/dtypes/shapes, architecture, quantization, producer |
+| Scientific | Parquet, Arrow, DuckDB, HDF5, NetCDF, MATLAB, FITS | Format/version metadata; NetCDF dimensions, FITS header cards |
+| PDF | `.pdf` | Page count/size, document info, bookmarks, encryption |
+| Images | PNG, JPEG, GIF, TIFF, WebP, HEIC, AVIF, PSD, ICNS, ICO, EXR, JPEG XL | Picture, dimensions, color, EXIF — plus **AI generation metadata** (A1111/Forge, ComfyUI) from PNG chunks |
+| Camera RAW | CR2, CR3, NEF, ARW, RAF, ORF, RW2, PEF, DNG | Decoded preview + camera EXIF via ImageIO |
+| Textures | QOI, DDS, TGA, KTX, KTX2, Radiance HDR | Dimensions, formats, mip levels |
+| Audio/Video | MP3, FLAC, WAV, Ogg, M4A, MP4, MOV, AVI, MKV/WebM* | Duration, codecs, resolution, fps, bitrate, tags |
+| 3D models | STL, OBJ, PLY, USDZ, GLB, glTF | **Interactive rotate/zoom viewer** (SceneKit) + geometry statistics |
+| CAD | DXF, DWG, STEP, IGES | Entity counts, AutoCAD version, STEP schema |
+| GIS | GeoJSON, KML, KMZ, Shapefile | Feature/geometry counts, bounding boxes, placemarks |
+| VM disks | QCOW2, VMDK, VHDX | Virtual capacity, format versions |
+| Torrents | `.torrent` | Name, trackers, piece size, full file list |
+| Terraform | `.tfstate` | Versions, resource counts by type |
+| Certificates | PEM, DER, CRT, CER, P12/PFX | Subject, issuer, serial, validity (expiry flag) |
+| Fonts | TTF, OTF, TTC, WOFF, WOFF2 | Family, style, glyphs, live specimen; WOFF header metadata |
 | Source code | 30+ extensions | Content, language, line count, encoding detection |
+
+\* MKV/WebM are detected and labeled; AVFoundation cannot decode their streams, so track details are limited.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the layer design and [docs/ROADMAP.md](docs/ROADMAP.md) for everything planned (RAR/7z, Office, RAW, 3D/CAD, AI image metadata, …).
 

@@ -1,4 +1,5 @@
 import Foundation
+import Compression
 
 /// Builds tiny, valid binary fixtures in memory so tests are deterministic
 /// and need no bundled sample files.
@@ -110,6 +111,24 @@ enum FixtureBuilder {
             data.append(Data(count: padding))
         }
         data.append(Data(count: 1024)) // two terminating zero blocks
+        return data
+    }
+
+    /// Real gzip member: header + raw-deflate payload (no trailer checksum,
+    /// which our bounded decompressor does not verify).
+    static func gzipCompress(_ payload: Data) -> Data {
+        var data = Data([0x1F, 0x8B, 0x08, 0x00, 0, 0, 0, 0, 0x00, 0x03])
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: payload.count + 1024)
+        defer { buffer.deallocate() }
+        let compressedSize = payload.withUnsafeBytes { raw -> Int in
+            compression_encode_buffer(
+                buffer, payload.count + 1024,
+                raw.bindMemory(to: UInt8.self).baseAddress!, payload.count,
+                nil, COMPRESSION_ZLIB
+            )
+        }
+        data.append(buffer, count: compressedSize)
+        data.append(Data(count: 8)) // crc32 + isize (unverified)
         return data
     }
 

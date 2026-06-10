@@ -1,5 +1,8 @@
 import SwiftUI
 import CoreText
+import SceneKit
+import SceneKit.ModelIO
+import ModelIO
 import OmniPreviewCore
 
 /// Renders a `PreviewDocument` with native typography, spacing, and
@@ -141,6 +144,20 @@ private struct SectionView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
+        case .imageData(let data):
+            if let image = NSImage(data: data) {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxHeight: 400)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+        case .model3D(let url):
+            Model3DView(url: url)
+                .frame(height: 360)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
         case .note(let text):
             Text(text)
                 .font(.footnote)
@@ -153,6 +170,40 @@ private struct SectionView: View {
         if let title {
             Text(title).font(.headline)
         }
+    }
+}
+
+/// Interactive 3D preview: ModelIO import → SceneKit scene with camera
+/// controls (rotate, zoom, pan).
+private struct Model3DView: View {
+    let url: URL
+
+    var body: some View {
+        if let scene = Self.scene(for: url) {
+            SceneView(
+                scene: scene,
+                options: [.allowsCameraControl, .autoenablesDefaultLighting]
+            )
+        } else {
+            VStack(spacing: 8) {
+                Image(systemName: "cube.transparent")
+                    .font(.system(size: 32))
+                    .foregroundStyle(.secondary)
+                Text("Interactive preview unavailable for this model")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private static func scene(for url: URL) -> SCNScene? {
+        guard MDLAsset.canImportFileExtension(url.pathExtension.lowercased()) else { return nil }
+        let asset = MDLAsset(url: url)
+        guard asset.count > 0 else { return nil }
+        let scene = SCNScene(mdlAsset: asset)
+        scene.background.contents = NSColor.windowBackgroundColor
+        return scene
     }
 }
 

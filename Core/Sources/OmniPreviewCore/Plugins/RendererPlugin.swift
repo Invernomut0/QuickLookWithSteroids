@@ -13,17 +13,33 @@ public protocol PreviewRenderer: Sendable {
 }
 
 public enum RendererRegistry {
+    /// Order matters: specialized ZIP-based renderers (Office, eBooks, app
+    /// packages, KMZ, USDZ) must precede the generic ZIP renderer.
     public static let all: [any PreviewRenderer] = [
+        OfficeRenderer(),
+        EbookRenderer(),
+        AppPackageRenderer(),
+        GeoRenderer(),
+        ThreeDRenderer(),
         ZIPRenderer(),
         TARRenderer(),
         GzipRenderer(),
+        XZRenderer(),
+        ArchiveMetadataRenderer(),
         SQLiteRenderer(),
         SafetensorsRenderer(),
         GGUFRenderer(),
+        ONNXRenderer(),
         NPYRenderer(),
         PDFRenderer(),
         ImageRenderer(),
+        TextureRenderer(),
         MediaRenderer(),
+        DataFileRenderer(),
+        DiskImageRenderer(),
+        CADRenderer(),
+        TorrentRenderer(),
+        DumpRenderer(),
         CertificateRenderer(),
         FontRenderer(),
         SourceCodeRenderer(),

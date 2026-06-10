@@ -12,12 +12,28 @@ public struct CertificateRenderer: PreviewRenderer {
     public init() {}
 
     public func canRender(_ file: DetectedFile) -> Bool {
-        file.kind == .pemCertificate || file.kind == .derCertificate
+        switch file.kind {
+        case .pemCertificate, .derCertificate, .pkcs12: return true
+        default: return false
+        }
     }
 
     public func render(_ file: DetectedFile) throws -> PreviewDocument {
         guard file.fileSize <= Self.maxFileSize else {
             throw PreviewError.tooLarge("certificate files over \(Format.bytes(Self.maxFileSize)) are not previewed")
+        }
+        if file.kind == .pkcs12 {
+            // PKCS#12 contents are encrypted; identify the container only.
+            return PreviewDocument(
+                title: file.url.lastPathComponent,
+                subtitle: "PKCS#12 Identity",
+                iconSystemName: "lock.shield",
+                sections: [.keyValues(title: "Container", rows: [
+                    KeyValueRow("Format", "PKCS#12 (PFX)"),
+                    KeyValueRow("Contents", "Certificates and private keys (password protected)"),
+                    KeyValueRow("File size", Format.bytes(file.fileSize)),
+                ])]
+            )
         }
         let data = try Data(contentsOf: file.url)
 

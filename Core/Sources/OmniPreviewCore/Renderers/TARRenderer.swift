@@ -1,7 +1,7 @@
 import Foundation
 
-/// Lists TAR contents by walking the 512-byte headers and seeking past each
-/// entry's data — file contents are never read into memory.
+/// Lists TAR contents by walking the 512-byte headers — file data is never
+/// materialized (the file is memory-mapped, entry data is skipped over).
 public struct TARRenderer: PreviewRenderer {
     public static let id = "tar"
     public static let displayName = "TAR Archive"
@@ -14,57 +14,68 @@ public struct TARRenderer: PreviewRenderer {
     public func canRender(_ file: DetectedFile) -> Bool { file.kind == .tar }
 
     public func render(_ file: DetectedFile) throws -> PreviewDocument {
-        let (entries, truncated) = try Self.readListing(url: file.url, fileSize: file.fileSize)
+        let data = try Data(contentsOf: file.url, options: .alwaysMapped)
+        let listing = Self.listing(from: data)
+        return Self.document(
+            title: file.url.lastPathComponent,
+            subtitle: "TAR Archive",
+            archiveSize: file.fileSize,
+            listing: listing
+        )
+    }
 
-        let totalSize = entries.reduce(UInt64(0)) { $0 + $1.uncompressedSize }
-        let fileCount = entries.filter { !$0.isDirectory }.count
+    struct Listing {
+        var entries: [ArchiveEntry]
+        var truncated: Bool
+    }
+
+    static func document(title: String, subtitle: String, archiveSize: UInt64, listing: Listing,
+                         extraRows: [KeyValueRow] = []) -> PreviewDocument {
+        let totalSize = listing.entries.reduce(UInt64(0)) { $0 + $1.uncompressedSize }
+        let fileCount = listing.entries.filter { !$0.isDirectory }.count
 
         var rows = [
             KeyValueRow("Files", "\(fileCount)"),
             KeyValueRow("Total size", Format.bytes(totalSize)),
-            KeyValueRow("Archive size", Format.bytes(file.fileSize)),
+            KeyValueRow("Archive size", Format.bytes(archiveSize)),
         ]
-        if truncated {
-            rows.append(KeyValueRow("Note", "Listing truncated to \(Self.maxEntries) entries"))
+        rows.append(contentsOf: extraRows)
+        if listing.truncated {
+            rows.append(KeyValueRow("Note", "Listing truncated"))
         }
 
         return PreviewDocument(
-            title: file.url.lastPathComponent,
-            subtitle: "TAR Archive",
+            title: title,
+            subtitle: subtitle,
             iconSystemName: "doc.zipper",
             sections: [
                 .keyValues(title: "Summary", rows: rows),
-                .fileTree(title: "Contents", entries: entries),
+                .fileTree(title: "Contents", entries: listing.entries),
             ]
         )
     }
 
-    static func readListing(url: URL, fileSize: UInt64) throws -> (entries: [ArchiveEntry], truncated: Bool) {
-        let handle = try FileHandle(forReadingFrom: url)
-        defer { try? handle.close() }
-
+    /// Walks ustar headers in a buffer (a mapped file or a decompressed stream).
+    static func listing(from data: Data) -> Listing {
+        let bytes = [UInt8](data)
         var entries: [ArchiveEntry] = []
-        var offset: UInt64 = 0
+        var offset = 0
         var pendingLongName: String?
 
-        while offset + UInt64(blockSize) <= fileSize {
-            try handle.seek(toOffset: offset)
-            guard let header = try handle.read(upToCount: blockSize), header.count == blockSize else { break }
-            let block = [UInt8](header)
-
-            // Two consecutive zero blocks terminate the archive; one is enough to stop listing.
+        while offset + blockSize <= bytes.count {
+            let block = Array(bytes[offset..<offset + blockSize])
             if block.allSatisfy({ $0 == 0 }) { break }
 
             let size = octal(block, 124, 12)
             let typeFlag = block[156]
-            let dataBlocks = (size + UInt64(blockSize) - 1) / UInt64(blockSize)
+            let dataBlocks = Int((size + UInt64(blockSize) - 1) / UInt64(blockSize))
 
             // GNU long-name extension: entry data holds the real name of the next entry.
             if typeFlag == UInt8(ascii: "L") {
-                let nameData = try handle.read(upToCount: Int(min(size, 4096))) ?? Data()
-                pendingLongName = String(decoding: nameData, as: UTF8.self)
+                let nameEnd = min(offset + blockSize + Int(min(size, 4096)), bytes.count)
+                pendingLongName = String(decoding: bytes[(offset + blockSize)..<nameEnd], as: UTF8.self)
                     .trimmingCharacters(in: CharacterSet(charactersIn: "\0"))
-                offset += UInt64(blockSize) + dataBlocks * UInt64(blockSize)
+                offset += blockSize + dataBlocks * blockSize
                 continue
             }
 
@@ -77,7 +88,7 @@ public struct TARRenderer: PreviewRenderer {
             let mtime = octal(block, 136, 12)
 
             if entries.count >= maxEntries {
-                return (entries, true)
+                return Listing(entries: entries, truncated: true)
             }
             if !name.isEmpty {
                 entries.append(ArchiveEntry(
@@ -88,9 +99,9 @@ public struct TARRenderer: PreviewRenderer {
                     modified: mtime > 0 ? Date(timeIntervalSince1970: TimeInterval(mtime)) : nil
                 ))
             }
-            offset += UInt64(blockSize) + dataBlocks * UInt64(blockSize)
+            offset += blockSize + dataBlocks * blockSize
         }
-        return (entries, false)
+        return Listing(entries: entries, truncated: false)
     }
 
     private static func cString(_ block: [UInt8], _ start: Int, _ length: Int) -> String {

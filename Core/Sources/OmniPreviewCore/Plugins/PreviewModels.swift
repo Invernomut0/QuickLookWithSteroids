@@ -23,6 +23,8 @@ public enum PreviewSection: Sendable {
     case table(title: String?, columns: [String], rows: [[String]])
     case fontSpecimen(fontURL: URL)
     case image(URL)
+    case imageData(Data)
+    case model3D(URL)
     case note(String)
 }
 
