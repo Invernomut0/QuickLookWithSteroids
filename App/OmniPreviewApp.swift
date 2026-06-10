@@ -102,7 +102,11 @@ struct ContentView: View {
     @State private var previewError: String?
     @State private var previewedURL: URL?
     @State private var previewedIsImage = false
+    @State private var previewedIsVideo = false
     @State private var showAnnotationEditor = false
+    @State private var showVideoTrimSheet = false
+
+    private var isPro: Bool { LicenseManager.shared.isProUnlocked }
 
     var body: some View {
         Group {
@@ -129,21 +133,57 @@ struct ContentView: View {
             }
         }
         .toolbar {
+            // Image annotation (Pro)
             if previewedIsImage, let previewedURL {
                 Button {
                     showAnnotationEditor = true
                 } label: {
                     Label("Annotate", systemImage: "pencil.tip.crop.circle")
                 }
-                .help("Open the annotation editor (pen, lines, rectangles, text)")
+                .help("Annotate image — pen, lines, rectangles, text (Pro)")
                 .id(previewedURL)
             }
+
+            // Video trim (Pro)
+            if previewedIsVideo {
+                if isPro {
+                    Button {
+                        showVideoTrimSheet = true
+                    } label: {
+                        Label("Trim Video", systemImage: "scissors")
+                    }
+                    .help("Trim and export this video (Pro)")
+                } else {
+                    Button {} label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "scissors")
+                            Text("Trim Video")
+                            Text("PRO")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(Color.accentColor.opacity(0.75), in: Capsule())
+                        }
+                    }
+                    .help("Video trimming requires OmniPreview Pro")
+                    .disabled(true)
+                    .opacity(0.7)
+                }
+            }
+
             if previewedDocument != nil {
                 Button("Clear") {
                     previewedDocument = nil
                     previewedURL = nil
                     previewedIsImage = false
+                    previewedIsVideo = false
                 }
+            }
+        }
+        .sheet(isPresented: $showVideoTrimSheet) {
+            if let previewedURL {
+                VideoTrimSheet(url: previewedURL)
             }
         }
         .sheet(isPresented: $showAnnotationEditor) {
@@ -159,16 +199,15 @@ struct ContentView: View {
                     do {
                         previewedDocument = try await PreviewPipeline.shared.document(for: url)
                         previewedURL = url
-                        if case .image = (try? FileTypeDetector.detect(url: url))?.kind {
-                            previewedIsImage = true
-                        } else {
-                            previewedIsImage = false
-                        }
+                        let kind = (try? FileTypeDetector.detect(url: url))?.kind
+                        if case .image = kind { previewedIsImage = true } else { previewedIsImage = false }
+                        if case .video = kind { previewedIsVideo = true } else { previewedIsVideo = false }
                         previewError = nil
                     } catch {
                         previewedDocument = nil
                         previewedURL = nil
                         previewedIsImage = false
+                        previewedIsVideo = false
                         previewError = error.localizedDescription
                     }
                 }

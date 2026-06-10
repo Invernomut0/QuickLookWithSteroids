@@ -106,27 +106,7 @@ private struct SectionView: View {
             }
 
         case .text(let content, let language):
-            if language?.lowercased() == "markdown" {
-                GroupBox {
-                    MarkdownView(source: content)
-                        .padding(8)
-                }
-            } else if let language {
-                let attributed = SyntaxHighlighter.highlight(content, language: language)
-                let height = CodeView.estimatedHeight(for: content)
-                GroupBox {
-                    CodeView(attributedString: attributed)
-                        .frame(height: height)
-                }
-            } else {
-                GroupBox {
-                    Text(content)
-                        .font(.system(.callout, design: .monospaced))
-                        .textSelection(.enabled)
-                        .padding(8)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
+            TextSectionView(content: content, language: language)
 
         case .table(let title, let columns, let rows):
             GroupBox(label: sectionLabel(title)) {
@@ -235,6 +215,94 @@ private struct Model3DView: View {
         let scene = SCNScene(mdlAsset: asset)
         scene.background.contents = NSColor.windowBackgroundColor
         return scene
+    }
+}
+
+// MARK: Text section — Pro gates syntax highlighting and Markdown rendering
+
+private struct TextSectionView: View {
+    let content: String
+    let language: String?
+
+    private var isPro: Bool { LicenseManager.shared.isProUnlocked }
+
+    var body: some View {
+        if isPro {
+            proView
+        } else {
+            freeView
+        }
+    }
+
+    // MARK: Pro path
+
+    @ViewBuilder
+    private var proView: some View {
+        if language?.lowercased() == "markdown" {
+            GroupBox {
+                MarkdownView(source: content).padding(8)
+            }
+        } else if let language {
+            let attributed = SyntaxHighlighter.highlight(content, language: language)
+            let height = CodeView.estimatedHeight(for: content)
+            GroupBox {
+                CodeView(attributedString: attributed).frame(height: height)
+            }
+        } else {
+            plainTextBox
+        }
+    }
+
+    // MARK: Free path — plain text + upgrade nudge when a richer view is available
+
+    @ViewBuilder
+    private var freeView: some View {
+        if language != nil {
+            VStack(spacing: 0) {
+                ProNudge(feature: language?.lowercased() == "markdown"
+                         ? "Formatted Markdown" : "Syntax Highlighting")
+                plainTextBox
+            }
+        } else {
+            plainTextBox
+        }
+    }
+
+    private var plainTextBox: some View {
+        GroupBox {
+            Text(content)
+                .font(.system(.callout, design: .monospaced))
+                .textSelection(.enabled)
+                .padding(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+/// A subtle one-line banner shown above free-tier text to hint that
+/// a richer Pro view is available.
+private struct ProNudge: View {
+    let feature: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "paintbrush.pointed.fill")
+                .font(.system(size: 11))
+                .foregroundStyle(Color.accentColor.opacity(0.7))
+            Text("\(feature) available with OmniPreview Pro")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text("PRO")
+                .font(.system(size: 9, weight: .bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(Color.accentColor.opacity(0.75), in: Capsule())
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(Color.accentColor.opacity(0.06))
     }
 }
 

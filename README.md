@@ -33,26 +33,30 @@ Quick Look is one of macOS's most beloved features, but hundreds of modern file 
 
 OmniPreview is useful out of the box. The free tier covers every essential developer workflow. **Pro** unlocks the high-value analysis features for ML engineers, data scientists, 3D artists and creative professionals.
 
-| Renderer | Free | Pro |
+| Feature | Free | Pro |
 |---|:---:|:---:|
-| ZIP, TAR, Gzip/XZ listing | ✓ | |
+| ZIP, TAR, Gzip/XZ full contents listing | ✓ | |
 | 7z, RAR, ISO, DMG, DEB, RPM, PKG… metadata | ✓ | |
 | SQLite schema & row counts | ✓ | |
 | PDF metadata & bookmarks | ✓ | |
-| Source code with syntax highlighting (50+ languages) | ✓ | |
-| Markdown with rendered blocks | ✓ | |
-| Folder browser (Finder-style) | ✓ | |
-| Images — dimensions, EXIF, AI generation metadata | ✓ | |
+| Source code — plain text (50+ languages detected) | ✓ | |
+| Source code — **syntax highlighting with colors** | | ✓ |
+| Markdown — raw source | ✓ | |
+| Markdown — **formatted rendering** (headings, tables, code blocks) | | ✓ |
+| Folder browser (Finder-style columns, disclosure tree) | ✓ | |
+| Images — dimensions, EXIF, AI generation metadata (ComfyUI / A1111) | ✓ | |
 | Fonts — specimen & metadata | ✓ | |
 | X.509 certificates | ✓ | |
-| INI / YAML / JSON / TOML | ✓ | |
+| INI / YAML / JSON / TOML structured view | ✓ | |
 | GIS — GeoJSON, KML, Shapefile | ✓ | |
-| Torrents | ✓ | |
+| Torrents — full file list | ✓ | |
 | Database dumps & Terraform state | ✓ | |
 | CAD — DXF, STEP, DWG, IGES | ✓ | |
+| Image annotation editor (pen, line, rectangle, text, PNG export) | ✓ | |
+| **Video trim & export** (AVKit trim UI + full-quality export) | | ✓ |
 | **Office — DOCX, XLSX, PPTX, ODT…** | | ✓ |
 | **eBooks — EPUB with cover, MOBI, AZW3, FB2, CBZ** | | ✓ |
-| **Audio & Video — codecs, bitrate, tags** | | ✓ |
+| **Audio & Video — codecs, resolution, bitrate, tags** | | ✓ |
 | **3D models — interactive SceneKit viewer** | | ✓ |
 | **GGUF / LLM models** | | ✓ |
 | **Safetensors models** | | ✓ |
