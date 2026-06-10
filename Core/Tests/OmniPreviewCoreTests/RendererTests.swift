@@ -159,6 +159,42 @@ final class RendererTests: XCTestCase {
         XCTAssertEqual(first.title, second.title)
     }
 
+    // MARK: Unknown-file text fallback
+
+    func testUnknownTextFileIsRenderedAsPlainText() throws {
+        let text = "Hello from an unknown extension\nline two\n"
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("omnipreview-test-\(UUID().uuidString).xyzzy")
+        try Data(text.utf8).write(to: url)
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let file = try FileTypeDetector.detect(url: url)
+        XCTAssertEqual(file.kind, .unknown)
+
+        let renderer = RendererRegistry.renderer(for: file)
+        XCTAssertNotNil(renderer, "unknown text file should fall through to SourceCodeRenderer")
+        XCTAssertEqual(type(of: renderer!).id, SourceCodeRenderer.id)
+
+        let document = try SourceCodeRenderer().render(file)
+        XCTAssertEqual(document.subtitle, "Plain Text")
+        guard case .text(let content, _) = document.sections[1] else {
+            return XCTFail("expected text section")
+        }
+        XCTAssertTrue(content.contains("Hello from an unknown extension"))
+    }
+
+    func testUnknownBinaryFileIsNotRendered() throws {
+        let binary = Data([0x00, 0xFF, 0x00, 0xAB, 0xCD, 0x00, 0x01, 0x02, 0x00, 0x03])
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("omnipreview-test-\(UUID().uuidString).xyzzy")
+        try binary.write(to: url)
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let file = try FileTypeDetector.detect(url: url)
+        XCTAssertEqual(file.kind, .unknown)
+        XCTAssertNil(RendererRegistry.renderer(for: file), "binary unknown file should have no renderer")
+    }
+
     func testRegistryRespectsDisabledRenderers() {
         let file = DetectedFile(url: URL(fileURLWithPath: "/tmp/x.zip"), kind: .zip, fileSize: 0)
         XCTAssertNotNil(RendererRegistry.renderer(for: file))

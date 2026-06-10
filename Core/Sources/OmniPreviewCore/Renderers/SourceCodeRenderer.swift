@@ -7,17 +7,39 @@ public struct SourceCodeRenderer: PreviewRenderer {
     public static let displayName = "Source Code"
 
     static let maxReadBytes = 2 * 1024 * 1024
+    /// How many bytes to sniff when deciding whether an unknown file is text.
+    static let sniffBytes = 8 * 1024
+    /// Max fraction of non-printable bytes before a file is considered binary.
+    static let binaryThreshold = 0.30
 
     public init() {}
 
     public func canRender(_ file: DetectedFile) -> Bool {
         if case .sourceCode = file.kind { return true }
+        if file.kind == .unknown { return Self.looksLikeText(url: file.url) }
         return false
     }
 
+    /// Reads the first `sniffBytes` and returns true when the content looks
+    /// like human-readable text: no null bytes and fewer than `binaryThreshold`
+    /// non-printable characters.
+    static func looksLikeText(url: URL) -> Bool {
+        guard let handle = try? FileHandle(forReadingFrom: url),
+              let sample = try? handle.read(upToCount: sniffBytes),
+              !sample.isEmpty else { return false }
+        defer { try? handle.close() }
+        let bytes = [UInt8](sample)
+        if bytes.contains(0x00) { return false }
+        let nonPrintable = bytes.filter { $0 < 0x09 || ($0 > 0x0D && $0 < 0x20 && $0 != 0x1B) }.count
+        return Double(nonPrintable) / Double(bytes.count) < binaryThreshold
+    }
+
     public func render(_ file: DetectedFile) throws -> PreviewDocument {
-        guard case .sourceCode(let language) = file.kind else {
-            throw PreviewError.unsupportedType
+        let language: String
+        if case .sourceCode(let lang) = file.kind {
+            language = lang
+        } else {
+            language = "Plain Text"
         }
 
         let handle = try FileHandle(forReadingFrom: file.url)
@@ -56,13 +78,14 @@ public struct SourceCodeRenderer: PreviewRenderer {
             rows.append(KeyValueRow("Note", "Showing first \(Format.bytes(UInt64(data.count)))"))
         }
 
+        let isPlainText = language == "Plain Text"
         return PreviewDocument(
             title: file.url.lastPathComponent,
             subtitle: language,
-            iconSystemName: "chevron.left.forwardslash.chevron.right",
+            iconSystemName: isPlainText ? "doc.text" : "chevron.left.forwardslash.chevron.right",
             sections: [
                 .keyValues(title: nil, rows: rows),
-                .text(content: content, language: language),
+                .text(content: content, language: isPlainText ? nil : language),
             ]
         )
     }
