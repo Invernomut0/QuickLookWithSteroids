@@ -334,9 +334,25 @@ targets:
               - com.apple.disk-image-udif
               - public.folder
               # ── Source code ───────────────────────────────────────────────
-              # public.source-code covers: .swift, .py, .js, .c, .cpp, .h,
-              # .java, .m, .mm, .sh, .bash, .zsh, .html, .css and their variants
+              # QL does NOT follow UTI conformance: each UTI must be listed
+              # explicitly. public.source-code is kept as a broad fallback.
               - public.source-code
+              # Apple-assigned UTIs for specific languages (verified with mdls)
+              - public.python-script          # .py
+              - public.swift-source           # .swift
+              - public.shell-script           # .sh .bash .zsh
+              - com.netscape.javascript-source # .js
+              - com.sun.java-source           # .java
+              - public.c-source               # .c
+              - public.c-plus-plus-source     # .cpp .cc
+              - public.c-header               # .h
+              - public.c-plus-plus-header     # .hpp
+              - public.objective-c-source     # .m
+              - public.objc-plus-plus-source  # .mm
+              - public.script                 # generic scripts
+              - public.ruby-script            # .rb
+              - public.php-script             # .php
+              - com.microsoft.typescript      # .tsx on some macOS versions
               # Specific Apple UTIs that DON'T inherit from public.source-code
               - public.json
               - public.xml
