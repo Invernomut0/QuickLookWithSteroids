@@ -56,8 +56,8 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: OmniPreview
-        CFBundleShortVersionString: "0.3.1"
-        CFBundleVersion: "4"
+        CFBundleShortVersionString: "0.3.2"
+        CFBundleVersion: "5"
         NSHumanReadableCopyright: "© 2026 Lorenzo Vismara — MIT License"
         LSMinimumSystemVersion: "13.0"
         LSApplicationCategoryType: public.app-category.utilities
@@ -332,6 +332,12 @@ targets:
               - public.opentype-font
               - com.omnipreview.woff
               - public.png
+              - public.mpeg-4
+              - com.apple.quicktime-movie
+              - public.heic
+              - public.heif
+              - public.webp
+              - org.webmproject.webp
               - public.yaml
               - com.apple.disk-image-udif
               - public.folder
@@ -384,8 +390,12 @@ targets:
               # ── Config & text ─────────────────────────────────────────────
               - com.omnipreview.toml
               - com.omnipreview.ini
+              - com.microsoft.ini
               - com.omnipreview.env
               - com.omnipreview.log
+              # Extensionless text files often resolve as public.data.
+              # The renderer pipeline decides whether they are text/binary.
+              - public.data
               # ── Archives (additional) ─────────────────────────────────────
               - com.omnipreview.cbz
               - com.omnipreview.jar

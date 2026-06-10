@@ -56,6 +56,12 @@
 				<string>public.opentype-font</string>
 				<string>com.omnipreview.woff</string>
 				<string>public.png</string>
+				<string>public.mpeg-4</string>
+				<string>com.apple.quicktime-movie</string>
+				<string>public.heic</string>
+				<string>public.heif</string>
+				<string>public.webp</string>
+				<string>org.webmproject.webp</string>
 				<string>public.yaml</string>
 				<string>com.apple.disk-image-udif</string>
 				<string>public.folder</string>
@@ -100,8 +106,10 @@
 				<string>com.omnipreview.scala</string>
 				<string>com.omnipreview.toml</string>
 				<string>com.omnipreview.ini</string>
+				<string>com.microsoft.ini</string>
 				<string>com.omnipreview.env</string>
 				<string>com.omnipreview.log</string>
+				<string>public.data</string>
 				<string>com.omnipreview.cbz</string>
 				<string>com.omnipreview.jar</string>
 				<string>com.omnipreview.apk</string>
