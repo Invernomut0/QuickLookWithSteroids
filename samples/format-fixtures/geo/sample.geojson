@@ -1,0 +1,10 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [9.19, 45.46] },
+      "properties": { "name": "Milan" }
+    }
+  ]
+}

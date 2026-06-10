@@ -35,6 +35,18 @@ final class DetectionTests: XCTestCase {
         XCTAssertEqual(kind(head: [0x00, 0xFF, 0x13], name: "mystery.xyz"), .unknown)
     }
 
+    func testExtensionlessPlainTextFallback() {
+        XCTAssertEqual(
+            kind(head: Array("hello from extensionless text\n".utf8), name: "README"),
+            .sourceCode(language: "Plain Text")
+        )
+    }
+
+    func testUTF16BOMIsDetectedAsText() {
+        let utf16Sample: [UInt8] = [0xFF, 0xFE, 0x68, 0x00, 0x69, 0x00, 0x0A, 0x00]
+        XCTAssertEqual(kind(head: utf16Sample, name: "notes"), .sourceCode(language: "Plain Text"))
+    }
+
     func testSafetensorsHeuristic() {
         var head: [UInt8] = [16, 0, 0, 0, 0, 0, 0, 0] // header length 16
         head.append(UInt8(ascii: "{"))

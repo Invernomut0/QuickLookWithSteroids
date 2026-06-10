@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: omnipreview
+  namespace: default
+data:
+  mode: demo

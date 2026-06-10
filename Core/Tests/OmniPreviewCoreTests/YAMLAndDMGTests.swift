@@ -59,6 +59,21 @@ final class YAMLAndDMGTests: XCTestCase {
         XCTAssertEqual(rows.first { $0.key == "port" }?.value, "8080")
     }
 
+    func testINIRendererHandlesExtensionlessConfig() throws {
+        let ini = "[core]\neditor = vim\nautocrlf = input\n"
+        let file = try detect(Data(ini.utf8), name: "gitconfig")
+        let renderer = RendererRegistry.renderer(for: file)
+        XCTAssertNotNil(renderer)
+        XCTAssertEqual(type(of: renderer!).id, INIRenderer.id)
+
+        let document = try INIRenderer().render(file)
+        guard case .keyValues(let title, let rows) = document.sections[1] else {
+            return XCTFail("expected [core] section")
+        }
+        XCTAssertEqual(title, "[core]")
+        XCTAssertEqual(rows.first { $0.key == "editor" }?.value, "vim")
+    }
+
     // MARK: YAML
 
     func testKubernetesManifestDetection() throws {

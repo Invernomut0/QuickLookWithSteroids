@@ -8,12 +8,17 @@ public struct INIRenderer: PreviewRenderer {
     public static let displayName = "Configuration File"
 
     static let maxReadBytes = 2 * 1024 * 1024
-    static let extensions: Set<String> = ["ini", "cfg", "conf", "desktop", "editorconfig"]
+    static let extensions: Set<String> = ["ini", "cfg", "conf", "cnf", "properties", "desktop", "editorconfig", "gitconfig"]
 
     public init() {}
 
     public func canRender(_ file: DetectedFile) -> Bool {
-        file.kind == .sourceCode(language: "INI") || Self.extensions.contains(file.pathExtension)
+        if file.kind == .sourceCode(language: "INI") || Self.extensions.contains(file.pathExtension) {
+            return true
+        }
+        // Extensionless config files (or uncommon config extensions) should
+        // still be handled here when they look like INI syntax.
+        return Self.looksLikeINI(url: file.url)
     }
 
     public func render(_ file: DetectedFile) throws -> PreviewDocument {
@@ -62,11 +67,32 @@ public struct INIRenderer: PreviewRenderer {
         result.sections[""] = []
         result.order = [""]
 
-        for rawLine in text.components(separatedBy: .newlines) {
-            let line = rawLine.trimmingCharacters(in: .whitespaces)
+        // Handle multi-line values ending with a trailing backslash.
+        var logicalLines: [String] = []
+        var buffer = ""
+        for line in text.components(separatedBy: .newlines) {
+            if buffer.isEmpty {
+                buffer = line
+            } else {
+                buffer += "\n" + line
+            }
+            if buffer.hasSuffix("\\") {
+                buffer.removeLast()
+                continue
+            }
+            logicalLines.append(buffer)
+            buffer = ""
+        }
+        if !buffer.isEmpty { logicalLines.append(buffer) }
+
+        for (index, rawLine) in logicalLines.enumerated() {
+            var line = rawLine.trimmingCharacters(in: .whitespaces)
+            if index == 0, line.hasPrefix("\u{FEFF}") {
+                line.removeFirst()
+            }
 
             // Skip blank lines and comments
-            if line.isEmpty || line.hasPrefix(";") || line.hasPrefix("#") { continue }
+            if line.isEmpty || line.hasPrefix(";") || line.hasPrefix("#") || line.hasPrefix("!") { continue }
 
             // Section header
             if line.hasPrefix("["), let close = line.firstIndex(of: "]") {
@@ -118,5 +144,41 @@ public struct INIRenderer: PreviewRenderer {
             }
         }
         return value
+    }
+
+    private static func looksLikeINI(url: URL) -> Bool {
+        guard let handle = try? FileHandle(forReadingFrom: url),
+              let data = try? handle.read(upToCount: 32 * 1024),
+              !data.isEmpty else { return false }
+        defer { try? handle.close() }
+
+        guard FileTypeDetector.looksLikeTextSample(data) else { return false }
+        let text = String(decoding: data, as: UTF8.self)
+        let lines = text.components(separatedBy: .newlines)
+
+        var sectionCount = 0
+        var keyValueCount = 0
+        for raw in lines {
+            let line = raw.trimmingCharacters(in: .whitespaces)
+            if line.isEmpty || line.hasPrefix(";") || line.hasPrefix("#") || line.hasPrefix("!") { continue }
+
+            if line.hasPrefix("["), line.contains("]") {
+                sectionCount += 1
+                continue
+            }
+
+            var delimiter: Character = "="
+            if !line.contains("="), line.contains(":") { delimiter = ":" }
+            if let idx = line.firstIndex(of: delimiter) {
+                let key = line[..<idx].trimmingCharacters(in: .whitespaces)
+                if !key.isEmpty {
+                    keyValueCount += 1
+                }
+            }
+        }
+
+        // Avoid false positives on random text: require at least two pairs
+        // and either one section or multiple key/value lines.
+        return keyValueCount >= 2 && (sectionCount >= 1 || keyValueCount >= 3)
     }
 }

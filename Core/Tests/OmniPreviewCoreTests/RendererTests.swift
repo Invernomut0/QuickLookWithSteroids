@@ -172,7 +172,7 @@ final class RendererTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: url) }
 
         let file = try FileTypeDetector.detect(url: url)
-        XCTAssertEqual(file.kind, .unknown)
+        XCTAssertEqual(file.kind, .sourceCode(language: "Plain Text"))
 
         let renderer = RendererRegistry.renderer(for: file)
         XCTAssertNotNil(renderer, "unknown text file should fall through to SourceCodeRenderer")

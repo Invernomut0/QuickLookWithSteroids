@@ -6,6 +6,13 @@ OmniPreview transforms Quick Look into a powerful universal file explorer, bring
 
 Built entirely in Swift with zero third-party runtime dependencies, OmniPreview feels like a natural extension of macOS. Press Space in Finder and instantly explore archives, databases, AI models, 3D assets, scientific datasets, source code with full syntax highlighting, rendered Markdown, and much more — without launching another application.
 
+## Latest Update (June 2026)
+
+- **Image metadata visibility hardened**: image previews now keep the metadata panel visible even when some ImageIO properties are partially unavailable.
+- **Video metadata loading hardened**: media metadata loading is now defensive (duration/tracks/tags loaded independently) to avoid empty/failed previews on edge-case containers.
+- **INI/CFG handling improved**: broader config extension support (`.ini`, `.cfg`, `.conf`, `.cnf`, `.properties`, `.editorconfig`, `gitconfig`) and smarter parser behavior (BOM, comments, multiline continuations).
+- **Extensionless text detection improved**: files without extension are now recognized more reliably as text (including UTF BOM/UTF-16 patterns), reducing false negatives.
+
 ---
 
 ## Why OmniPreview?
@@ -302,6 +309,14 @@ Press Space on any supported file in Finder. The app runs as a **menu bar agent*
 scripts/test.sh        # swift test inside Core/
 ```
 
+### Sample corpus for broad format testing
+
+A curated fixture set is now included at:
+
+`samples/format-fixtures/`
+
+It contains ready-to-open examples for source/config/data/security/geo families and placeholders for binary-heavy families (media, archives, 3D, disk images, ML artifacts) that can be replaced with real files during manual QA.
+
 ---
 
 ## Repository Layout
@@ -325,7 +340,20 @@ PreviewExtension/             Quick Look preview extension (Space bar)
 ThumbnailExtension/           Quick Look thumbnail extension (Finder icons)
 project.yml                   XcodeGen definition (xcodeproj is generated, not committed)
 scripts/                      build.sh, test.sh, generate.sh
+samples/                      fixture corpus for manual/comprehensive format checks
 ```
+
+## Pro Feature Notes
+
+Pro-only capabilities remain focused on high-value analysis and rich rendering workflows:
+
+- Syntax highlighting (50+ languages)
+- Formatted Markdown rendering
+- Video trim & export workflow
+- ML model deep inspection (GGUF, Safetensors, ONNX, NumPy/NPZ)
+- Office/eBook/media/scientific/3D/texture/disk-image advanced previews
+
+Recent robustness improvements also benefit Pro media workflows by improving metadata extraction reliability on non-ideal containers.
 
 ---
 

@@ -1,0 +1,5 @@
+title = "OmniPreview"
+
+[ui]
+theme = "dark"
+show_toolbar = true

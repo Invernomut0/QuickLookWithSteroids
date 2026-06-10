@@ -1,0 +1,5 @@
+{
+  "name": "omnipreview",
+  "version": 1,
+  "features": ["preview", "metadata", "quicklook"]
+}

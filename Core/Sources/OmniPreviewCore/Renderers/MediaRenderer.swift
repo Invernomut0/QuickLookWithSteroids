@@ -26,7 +26,12 @@ public struct MediaRenderer: PreviewRenderer {
         }
 
         let asset = AVURLAsset(url: file.url)
-        let (duration, tracks, metadata) = try await asset.load(.duration, .tracks, .commonMetadata)
+        // Load metadata defensively: some containers expose duration but fail
+        // track or tag loading. We still want a useful summary instead of a
+        // hard error.
+        let duration = (try? await asset.load(.duration)) ?? .zero
+        let tracks = (try? await asset.load(.tracks)) ?? []
+        let metadata = (try? await asset.load(.commonMetadata)) ?? []
 
         var rows = [
             KeyValueRow("Duration", Self.timeString(duration.seconds)),
@@ -77,7 +82,11 @@ public struct MediaRenderer: PreviewRenderer {
         }
 
         var sections: [PreviewSection] = [.keyValues(title: "Summary", rows: rows)]
-        if !trackRows.isEmpty { sections.append(.keyValues(title: "Tracks", rows: trackRows)) }
+        if !trackRows.isEmpty {
+            sections.append(.keyValues(title: "Tracks", rows: trackRows))
+        } else {
+            sections.append(.note("Track metadata unavailable for this container/codec"))
+        }
         if !tagRows.isEmpty { sections.append(.keyValues(title: "Tags", rows: tagRows)) }
 
         return PreviewDocument(

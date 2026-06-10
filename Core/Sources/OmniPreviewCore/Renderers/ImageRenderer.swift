@@ -18,19 +18,18 @@ public struct ImageRenderer: PreviewRenderer {
         guard case .image(let format) = file.kind else { throw PreviewError.unsupportedType }
 
         let options = [kCGImageSourceShouldCache: false] as CFDictionary
-        guard let source = CGImageSourceCreateWithURL(file.url as CFURL, options),
-              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, options) as? [CFString: Any] else {
+        guard let source = CGImageSourceCreateWithURL(file.url as CFURL, options) else {
             throw PreviewError.corruptFile("ImageIO could not parse this image")
         }
+        let properties = (CGImageSourceCopyPropertiesAtIndex(source, 0, options) as? [CFString: Any]) ?? [:]
 
         let width = properties[kCGImagePropertyPixelWidth] as? Int ?? 0
         let height = properties[kCGImagePropertyPixelHeight] as? Int ?? 0
 
-        var rows = [
-            KeyValueRow("Dimensions", "\(width) × \(height)"),
-            KeyValueRow("Format", format),
-            KeyValueRow("File size", Format.bytes(file.fileSize)),
-        ]
+        var rows = [KeyValueRow("Format", format), KeyValueRow("File size", Format.bytes(file.fileSize))]
+        if width > 0, height > 0 {
+            rows.insert(KeyValueRow("Dimensions", "\(width) × \(height)"), at: 0)
+        }
         if let colorModel = properties[kCGImagePropertyColorModel] as? String {
             var color = colorModel
             if let depth = properties[kCGImagePropertyDepth] as? Int { color += " \(depth)-bit" }
@@ -60,7 +59,9 @@ public struct ImageRenderer: PreviewRenderer {
 
         return PreviewDocument(
             title: file.url.lastPathComponent,
-            subtitle: "\(format) Image — \(width) × \(height)",
+            subtitle: width > 0 && height > 0
+                ? "\(format) Image — \(width) × \(height)"
+                : "\(format) Image",
             iconSystemName: "photo",
             sections: sections
         )

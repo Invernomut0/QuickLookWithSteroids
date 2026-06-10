@@ -28,10 +28,7 @@ public struct SourceCodeRenderer: PreviewRenderer {
               let sample = try? handle.read(upToCount: sniffBytes),
               !sample.isEmpty else { return false }
         defer { try? handle.close() }
-        let bytes = [UInt8](sample)
-        if bytes.contains(0x00) { return false }
-        let nonPrintable = bytes.filter { $0 < 0x09 || ($0 > 0x0D && $0 < 0x20 && $0 != 0x1B) }.count
-        return Double(nonPrintable) / Double(bytes.count) < binaryThreshold
+        return FileTypeDetector.looksLikeTextSample(sample)
     }
 
     public func render(_ file: DetectedFile) throws -> PreviewDocument {

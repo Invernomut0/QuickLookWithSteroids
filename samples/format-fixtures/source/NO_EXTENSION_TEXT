@@ -1,0 +1,3 @@
+Questo è un file testuale senza estensione.
+Serve per validare il fallback Plain Text.
+#!/bin/sh non è in prima riga quindi resta plain text.

@@ -205,6 +205,9 @@ public enum FileTypeDetector {
         if ["der", "cer", "crt"].contains(ext), bytes.first == 0x30 { return .derCertificate }
 
         // MARK: Text-based fallbacks
+        if starts("#!") {
+            return .sourceCode(language: "Shell")
+        }
         if ext == "sql" || ext == "dump" {
             let headText = String(decoding: head.prefix(4096), as: UTF8.self)
             if headText.contains("PostgreSQL database dump") { return .sqlDump(format: "PostgreSQL") }
@@ -218,6 +221,54 @@ public enum FileTypeDetector {
         if let language = sourceLanguages[ext] {
             return .sourceCode(language: language)
         }
+        if looksLikeTextSample(head) {
+            return .sourceCode(language: "Plain Text")
+        }
         return .unknown
+    }
+
+    /// Heuristic text detection for extensionless/unknown files.
+    /// Supports UTF BOMs and UTF-16 style alternating NUL bytes.
+    static func looksLikeTextSample(_ head: Data) -> Bool {
+        guard !head.isEmpty else { return false }
+        let bytes = [UInt8](head.prefix(8 * 1024))
+        if bytes.starts(with: [0xEF, 0xBB, 0xBF]) { return true } // UTF-8 BOM
+        if bytes.starts(with: [0xFF, 0xFE]) || bytes.starts(with: [0xFE, 0xFF]) { return true } // UTF-16
+        if bytes.starts(with: [0xFF, 0xFE, 0x00, 0x00]) || bytes.starts(with: [0x00, 0x00, 0xFE, 0xFF]) {
+            return true // UTF-32
+        }
+
+        if bytes.contains(0x00) {
+            if bytes.count < 16 { return false }
+            // Common UTF-16 pattern: many NULs on alternating positions.
+            let evenNulls = stride(from: 0, to: bytes.count, by: 2).filter { bytes[$0] == 0 }.count
+            let oddNulls = stride(from: 1, to: bytes.count, by: 2).filter { bytes[$0] == 0 }.count
+            let evenTotal = (bytes.count + 1) / 2
+            let oddTotal = bytes.count / 2
+            let evenRatio = evenTotal > 0 ? Double(evenNulls) / Double(evenTotal) : 0
+            let oddRatio = oddTotal > 0 ? Double(oddNulls) / Double(oddTotal) : 0
+
+            // UTF-16 text usually has NULs predominantly on one side only.
+            let mostlyOneSide = (evenRatio > 0.35 && oddRatio < 0.10) || (oddRatio > 0.35 && evenRatio < 0.10)
+            guard mostlyOneSide else { return false }
+
+            // Validate that the non-NUL lane mostly contains printable bytes.
+            let lane: [UInt8]
+            if evenRatio > oddRatio {
+                lane = stride(from: 1, to: bytes.count, by: 2).map { bytes[$0] }
+            } else {
+                lane = stride(from: 0, to: bytes.count, by: 2).map { bytes[$0] }
+            }
+            let allowedControls: Set<UInt8> = [0x09, 0x0A, 0x0D]
+            let printable = lane.filter { ($0 >= 0x20 && $0 != 0x7F) || allowedControls.contains($0) }.count
+            if !lane.isEmpty, Double(printable) / Double(lane.count) > 0.60 { return true }
+            return false
+        }
+
+        let allowedControls: Set<UInt8> = [0x09, 0x0A, 0x0D, 0x1B]
+        let nonPrintable = bytes.filter {
+            ($0 < 0x20 && !allowedControls.contains($0)) || $0 == 0x7F
+        }.count
+        return Double(nonPrintable) / Double(bytes.count) < 0.20
     }
 }
