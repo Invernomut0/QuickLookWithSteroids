@@ -2,8 +2,10 @@ import Foundation
 
 /// Validates and caches an OmniPreview Pro license against the Gumroad API.
 ///
-/// State is stored in a named UserDefaults suite so both the host app and
-/// the Quick Look extension processes can read it without App Group signing.
+/// State is stored using the containing app's bundle ID as suite name.
+/// On macOS, app extensions can access the containing app's UserDefaults
+/// by using the containing app's bundle identifier as the suite name —
+/// no App Group entitlement required.
 public final class LicenseManager: @unchecked Sendable {
 
     public static let shared = LicenseManager()
@@ -12,10 +14,9 @@ public final class LicenseManager: @unchecked Sendable {
 
     static let productPermalink = "lghiqc"
     static let productID = "PrbYxrki-uQ8KxwsawhkDQ=="
-    // UserDefaults suite used by the sandboxed host app.
-    // Stored at: ~/Library/Containers/com.omnipreview.OmniPreview/Data/Library/Preferences/com.omnipreview.license.plist
-    static let defaultsSuite     = "com.omnipreview.license"
-    static let mainAppBundleID   = "com.omnipreview.OmniPreview"
+    // Using the containing app's bundle ID as suite name allows both the
+    // host app and Quick Look extensions to share the same UserDefaults.
+    static let defaultsSuite    = "com.omnipreview.OmniPreview"
     static let cacheValidity: TimeInterval = 7  * 24 * 3600   // 7 days
     static let gracePeriod:   TimeInterval = 30 * 24 * 3600   // 30 days
 
@@ -23,13 +24,7 @@ public final class LicenseManager: @unchecked Sendable {
 
     private let defaults: UserDefaults
 
-    /// True when running inside a Quick Look extension process (unsandboxed,
-    /// separate from the host app container).
-    private let isExtension: Bool
-
     private init() {
-        let bundleID = Bundle.main.bundleIdentifier ?? ""
-        isExtension = bundleID != Self.mainAppBundleID
         defaults = UserDefaults(suiteName: Self.defaultsSuite) ?? .standard
     }
 
@@ -42,31 +37,11 @@ public final class LicenseManager: @unchecked Sendable {
     /// Synchronous read — suitable for use from Quick Look extension processes.
     /// Returns `true` when a license is stored and within the grace period.
     public var isProUnlocked: Bool {
-        let valid: Bool
-        let lastValidated: Date?
-
-        if isExtension {
-            // The extension runs without sandbox, so it reads the main app's
-            // container preferences file directly (the sandboxed host app
-            // cannot share via App Group without a real Apple signing identity).
-            let prefs = readFromMainAppContainer()
-            valid = prefs["isValid"] as? Bool ?? false
-            lastValidated = prefs["lastValidated"] as? Date
-        } else {
-            valid = defaults.bool(forKey: "isValid")
-            lastValidated = defaults.object(forKey: "lastValidated") as? Date
+        guard defaults.bool(forKey: "isValid") else { return false }
+        guard let lastValidated = defaults.object(forKey: "lastValidated") as? Date else {
+            return false
         }
-
-        guard valid, let date = lastValidated else { return false }
-        return Date().timeIntervalSince(date) < Self.gracePeriod
-    }
-
-    /// Reads the license plist from the sandboxed host app's container.
-    private func readFromMainAppContainer() -> [String: Any] {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        let prefsPath = home
-            .appendingPathComponent("Library/Containers/\(Self.mainAppBundleID)/Data/Library/Preferences/\(Self.defaultsSuite).plist")
-        return (NSDictionary(contentsOf: prefsPath) as? [String: Any]) ?? [:]
+        return Date().timeIntervalSince(lastValidated) < Self.gracePeriod
     }
 
     /// Whether the cached validation is still fresh (< 7 days).
