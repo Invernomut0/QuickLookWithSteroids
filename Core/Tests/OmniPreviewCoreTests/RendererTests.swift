@@ -220,9 +220,10 @@ final class RendererTests: XCTestCase {
 
         let document = try SourceCodeRenderer().render(file)
         XCTAssertEqual(document.subtitle, "Plain Text")
-        guard case .text(let content, _) = document.sections[1] else {
+        guard case .text(let content, let language) = document.sections[1] else {
             return XCTFail("expected text section")
         }
+        XCTAssertEqual(language, "Plain Text")
         XCTAssertTrue(content.contains("Hello from an unknown extension"))
     }
 

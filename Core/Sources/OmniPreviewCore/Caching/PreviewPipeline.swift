@@ -66,7 +66,7 @@ public final class PreviewPipeline: @unchecked Sendable {
         var sections: [PreviewSection] = [.keyValues(title: "Preview", rows: rows)]
         if looksText {
             let content = String(decoding: sample, as: UTF8.self)
-            sections.append(.text(content: content, language: nil))
+            sections.append(.text(content: content, language: "Plain Text"))
         }
 
         return PreviewDocument(

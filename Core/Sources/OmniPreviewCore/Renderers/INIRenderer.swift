@@ -34,6 +34,9 @@ public struct INIRenderer: PreviewRenderer {
             KeyValueRow("Total keys", "\(parsed.sections.values.map(\.count).reduce(0, +))"),
             KeyValueRow("File size", Format.bytes(file.fileSize)),
         ]
+        if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            summary.append(KeyValueRow("Status", "Empty configuration file"))
+        }
         if data.count < Int(file.fileSize) {
             summary.append(KeyValueRow("Note", "Showing first \(Format.bytes(UInt64(data.count)))"))
         }
@@ -45,6 +48,16 @@ public struct INIRenderer: PreviewRenderer {
             let title = sectionName.isEmpty ? "General" : "[\(sectionName)]"
             sections.append(.keyValues(title: title, rows: rows))
         }
+
+        // Keep a raw-text section so Pro users get syntax highlighting and
+        // formatting parity with other text-based formats.
+        let highlightLanguage: String
+        switch file.pathExtension.lowercased() {
+        case "cfg": highlightLanguage = "cfg"
+        case "conf", "cnf": highlightLanguage = "conf"
+        default: highlightLanguage = "ini"
+        }
+        sections.append(.text(content: text, language: highlightLanguage))
 
         return PreviewDocument(
             title: file.url.lastPathComponent,

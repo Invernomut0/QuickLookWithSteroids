@@ -74,6 +74,18 @@ final class YAMLAndDMGTests: XCTestCase {
         XCTAssertEqual(rows.first { $0.key == "editor" }?.value, "vim")
     }
 
+    func testINIRendererIncludesRawTextSectionForProFormatting() throws {
+        let ini = "[server]\nport = 8080\n"
+        let file = try detect(Data(ini.utf8), name: "config.cfg")
+        let document = try INIRenderer().render(file)
+
+        guard case .text(let content, let language) = document.sections.last else {
+            return XCTFail("expected trailing raw text section")
+        }
+        XCTAssertEqual(language, "cfg")
+        XCTAssertTrue(content.contains("port = 8080"))
+    }
+
     // MARK: YAML
 
     func testKubernetesManifestDetection() throws {

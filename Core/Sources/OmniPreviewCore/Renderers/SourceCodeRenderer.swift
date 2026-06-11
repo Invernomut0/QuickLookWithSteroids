@@ -82,7 +82,7 @@ public struct SourceCodeRenderer: PreviewRenderer {
             iconSystemName: isPlainText ? "doc.text" : "chevron.left.forwardslash.chevron.right",
             sections: [
                 .keyValues(title: nil, rows: rows),
-                .text(content: content, language: isPlainText ? nil : language),
+                .text(content: content, language: language),
             ]
         )
     }

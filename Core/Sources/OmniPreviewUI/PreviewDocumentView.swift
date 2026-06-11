@@ -257,9 +257,9 @@ private struct TextSectionView: View {
 
     @ViewBuilder
     private var freeView: some View {
-        if language != nil {
+        if let language, language.lowercased() != "plain text" {
             VStack(spacing: 0) {
-                ProNudge(feature: language?.lowercased() == "markdown"
+                ProNudge(feature: language.lowercased() == "markdown"
                          ? "Formatted Markdown" : "Syntax Highlighting")
                 plainCodeBox
             }
