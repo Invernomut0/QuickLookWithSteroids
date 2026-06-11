@@ -71,9 +71,12 @@ public struct SourceCodeRenderer: PreviewRenderer {
             KeyValueRow("Encoding", encodingName(usedEncoding)),
             KeyValueRow("Size", Format.bytes(file.fileSize)),
         ]
-        if !LicenseManager.shared.isProUnlocked,
-           ["TOML", "INI", "Plain Text"].contains(language) {
-            rows.append(KeyValueRow("PRO", "Unlock syntax highlighting & formatted text view"))
+        if ["TOML", "INI", "Plain Text"].contains(language) {
+            if LicenseManager.shared.isProUnlocked {
+                rows.append(KeyValueRow("PRO", "Active · syntax highlighting enabled"))
+            } else {
+                rows.append(KeyValueRow("PRO", "Unlock syntax highlighting & formatted text view"))
+            }
         }
         if truncated {
             rows.append(KeyValueRow("Note", "Showing first \(Format.bytes(UInt64(data.count)))"))

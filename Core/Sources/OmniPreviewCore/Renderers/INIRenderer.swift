@@ -34,7 +34,9 @@ public struct INIRenderer: PreviewRenderer {
             KeyValueRow("Total keys", "\(parsed.sections.values.map(\.count).reduce(0, +))"),
             KeyValueRow("File size", Format.bytes(file.fileSize)),
         ]
-        if !LicenseManager.shared.isProUnlocked {
+        if LicenseManager.shared.isProUnlocked {
+            summary.append(KeyValueRow("PRO", "Active · syntax highlighting enabled"))
+        } else {
             summary.append(KeyValueRow("PRO", "Unlock syntax highlighting & formatted raw config view"))
         }
         if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
