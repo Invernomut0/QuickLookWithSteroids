@@ -180,6 +180,13 @@ final class RendererTests: XCTestCase {
         XCTAssertNotNil(rows.first(where: { $0.key == "Note" }))
     }
 
+    func testCertificateSHA256Helper() {
+        let input = Data("abc".utf8)
+        let hash = CertificateRenderer.sha256Hex(input)
+
+        XCTAssertEqual(hash, "BA:78:16:BF:8F:01:CF:EA:41:41:40:DE:5D:AE:22:23:B0:03:61:A3:96:17:7A:9C:B4:10:FF:61:F2:00:15:AD")
+    }
+
     // MARK: Source code
 
     func testSourceCodeMetadata() throws {

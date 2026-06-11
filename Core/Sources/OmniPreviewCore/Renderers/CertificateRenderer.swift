@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import CryptoKit
 
 /// X.509 certificate preview (PEM and DER) via the Security framework.
 public struct CertificateRenderer: PreviewRenderer {
@@ -122,6 +123,9 @@ public struct CertificateRenderer: PreviewRenderer {
         if let subject = SecCertificateCopySubjectSummary(certificate) as String? {
             rows.append(KeyValueRow("Subject", subject))
         }
+        if let fingerprint = sha256Fingerprint(for: certificate) {
+            rows.append(KeyValueRow("SHA-256", fingerprint))
+        }
         if let serial = SecCertificateCopySerialNumberData(certificate, nil) as Data? {
             rows.append(KeyValueRow("Serial", serial.map { String(format: "%02X", $0) }.joined(separator: ":")))
         }
@@ -150,5 +154,16 @@ public struct CertificateRenderer: PreviewRenderer {
         guard let entry = values[oid as String],
               let seconds = entry[kSecPropertyKeyValue as String] as? NSNumber else { return nil }
         return Date(timeIntervalSinceReferenceDate: seconds.doubleValue)
+    }
+
+    static func sha256Fingerprint(for certificate: SecCertificate) -> String? {
+        let der = SecCertificateCopyData(certificate) as Data
+        guard !der.isEmpty else { return nil }
+        return sha256Hex(der)
+    }
+
+    static func sha256Hex(_ data: Data) -> String {
+        let digest = SHA256.hash(data: data)
+        return digest.map { String(format: "%02X", $0) }.joined(separator: ":")
     }
 }
