@@ -74,7 +74,24 @@ public struct GeoRenderer: PreviewRenderer {
 
     private func renderKML(_ file: DetectedFile, data: Data, subtitle: String) throws -> PreviewDocument {
         guard let document = try? XMLDocument(data: data) else {
-            throw PreviewError.corruptFile("invalid KML XML")
+            let textPreview = String(data: data.prefix(8 * 1024), encoding: .utf8)
+            var rows: [KeyValueRow] = [
+                KeyValueRow("File size", Format.bytes(file.fileSize)),
+                KeyValueRow("Note", "Invalid or empty KML XML. Showing raw text preview when available."),
+            ]
+            if data.isEmpty {
+                rows.append(KeyValueRow("Status", "Empty file"))
+            }
+            var sections: [PreviewSection] = [.keyValues(title: "Map Data", rows: rows)]
+            if let textPreview, !textPreview.isEmpty {
+                sections.append(.text(content: textPreview, language: "XML"))
+            }
+            return PreviewDocument(
+                title: file.url.lastPathComponent,
+                subtitle: subtitle,
+                iconSystemName: "map",
+                sections: sections
+            )
         }
         var rows: [KeyValueRow] = []
         if let name = try? document.nodes(forXPath: "//*[local-name()='Document']/*[local-name()='name']").first?.stringValue,

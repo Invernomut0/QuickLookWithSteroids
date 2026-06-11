@@ -162,6 +162,46 @@ final class RendererTests: XCTestCase {
         XCTAssertEqual(first.title, second.title)
     }
 
+    func testPipelineRendersEmptyConfigAndExtensionlessFiles() async throws {
+        let cases: [(String, String)] = [
+            ("empty-ini", "ini"),
+            ("empty-cfg", "cfg"),
+            ("empty-toml", "toml"),
+            ("empty-extensionless", ""),
+        ]
+
+        let pipeline = PreviewPipeline()
+        for (name, ext) in cases {
+            var url = FileManager.default.temporaryDirectory
+                .appendingPathComponent("omnipreview-test-\(UUID().uuidString)-\(name)")
+            if !ext.isEmpty {
+                url.appendPathExtension(ext)
+            }
+            try Data().write(to: url)
+            temporaryFiles.append(url)
+
+            let document = try await pipeline.document(for: url)
+            XCTAssertFalse(document.sections.isEmpty, "expected at least one section for \(name)")
+        }
+    }
+
+    func testPipelineHandlesMalformedKMLWithoutThrowing() async throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("omnipreview-test-\(UUID().uuidString)-broken")
+            .appendingPathExtension("kml")
+        try Data("this is not xml".utf8).write(to: url)
+        temporaryFiles.append(url)
+
+        let document = try await PreviewPipeline().document(for: url)
+        XCTAssertEqual(document.iconSystemName, "map")
+        XCTAssertFalse(document.sections.isEmpty)
+
+        guard case .keyValues(_, let rows) = document.sections[0] else {
+            return XCTFail("expected keyValues summary section")
+        }
+        XCTAssertNotNil(rows.first(where: { $0.key == "Note" }))
+    }
+
     // MARK: Unknown-file text fallback
 
     func testUnknownTextFileIsRenderedAsPlainText() throws {

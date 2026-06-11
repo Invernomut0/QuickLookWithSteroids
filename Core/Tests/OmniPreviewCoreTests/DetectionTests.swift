@@ -47,6 +47,10 @@ final class DetectionTests: XCTestCase {
         XCTAssertEqual(kind(head: utf16Sample, name: "notes"), .sourceCode(language: "Plain Text"))
     }
 
+    func testEmptyExtensionlessFileIsDetectedAsPlainText() {
+        XCTAssertEqual(kind(head: [], name: "EMPTYFILE"), .sourceCode(language: "Plain Text"))
+    }
+
     func testSafetensorsHeuristic() {
         var head: [UInt8] = [16, 0, 0, 0, 0, 0, 0, 0] // header length 16
         head.append(UInt8(ascii: "{"))

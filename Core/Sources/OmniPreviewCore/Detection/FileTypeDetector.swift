@@ -230,7 +230,9 @@ public enum FileTypeDetector {
     /// Heuristic text detection for extensionless/unknown files.
     /// Supports UTF BOMs and UTF-16 style alternating NUL bytes.
     static func looksLikeTextSample(_ head: Data) -> Bool {
-        guard !head.isEmpty else { return false }
+        // Empty files are treated as text so they still get a readable
+        // preview (metadata + empty text body) instead of an unsupported icon.
+        guard !head.isEmpty else { return true }
         let bytes = [UInt8](head.prefix(8 * 1024))
         if bytes.starts(with: [0xEF, 0xBB, 0xBF]) { return true } // UTF-8 BOM
         if bytes.starts(with: [0xFF, 0xFE]) || bytes.starts(with: [0xFE, 0xFF]) { return true } // UTF-16
