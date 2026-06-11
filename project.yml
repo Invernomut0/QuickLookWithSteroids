@@ -489,4 +489,10 @@ targets:
               - com.omnipreview.gguf
               - com.omnipreview.npy
               - com.omnipreview.woff
+              - com.microsoft.ini
+              - public.toml
+              - com.omnipreview.toml
+              - com.google.earth.kml
+              - com.omnipreview.kml
+              - public.data
             QLThumbnailMinimumDimension: 0

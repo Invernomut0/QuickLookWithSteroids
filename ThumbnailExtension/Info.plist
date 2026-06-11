@@ -31,6 +31,12 @@
 				<string>com.omnipreview.gguf</string>
 				<string>com.omnipreview.npy</string>
 				<string>com.omnipreview.woff</string>
+				<string>com.microsoft.ini</string>
+				<string>public.toml</string>
+				<string>com.omnipreview.toml</string>
+				<string>com.google.earth.kml</string>
+				<string>com.omnipreview.kml</string>
+				<string>public.data</string>
 			</array>
 			<key>QLThumbnailMinimumDimension</key>
 			<integer>0</integer>
