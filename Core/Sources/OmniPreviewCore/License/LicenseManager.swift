@@ -2,10 +2,13 @@ import Foundation
 
 /// Validates and caches an OmniPreview Pro license against the Gumroad API.
 ///
-/// State is stored using the containing app's bundle ID as suite name.
-/// On macOS, app extensions can access the containing app's UserDefaults
-/// by using the containing app's bundle identifier as the suite name —
-/// no App Group entitlement required.
+/// License state is persisted in two complementary stores:
+///  1. **UserDefaults** (suite = app bundle ID) — fast lookup inside the host app.
+///  2. **Signed token file** (`LicenseTokenStore`) — shared path readable by
+///     Quick Look extension processes that run in separate sandbox containers.
+///
+/// The token file approach solves the sandbox container isolation problem without
+/// requiring an App Group entitlement (which needs a real Apple Developer certificate).
 public final class LicenseManager: @unchecked Sendable {
 
     public static let shared = LicenseManager()
@@ -35,8 +38,15 @@ public final class LicenseManager: @unchecked Sendable {
     }
 
     /// Synchronous read — suitable for use from Quick Look extension processes.
-    /// Returns `true` when a license is stored and within the grace period.
+    ///
+    /// Checks two sources (either is sufficient to unlock Pro):
+    ///  1. **UserDefaults** — works inside the host app container.
+    ///  2. **Signed token file** — shared path readable by extension sandbox containers.
     public var isProUnlocked: Bool {
+        // Fast path: token file works in both the app and extension contexts.
+        if LicenseTokenStore.isValid() { return true }
+
+        // Fallback: UserDefaults (only readable inside the host app container).
         guard defaults.bool(forKey: "isValid") else { return false }
         guard let lastValidated = defaults.object(forKey: "lastValidated") as? Date else {
             return false
@@ -62,6 +72,8 @@ public final class LicenseManager: @unchecked Sendable {
             defaults.set(true, forKey: "isValid")
             defaults.set(Date(), forKey: "lastValidated")
             defaults.synchronize()
+            // Write signed token file so the QL extension can read Pro status.
+            LicenseTokenStore.write(licenseKey: key)
         }
         return valid
     }
@@ -71,6 +83,8 @@ public final class LicenseManager: @unchecked Sendable {
         defaults.removeObject(forKey: "isValid")
         defaults.removeObject(forKey: "lastValidated")
         defaults.synchronize()
+        // Remove the token file so the extension also drops back to Free.
+        LicenseTokenStore.delete()
     }
 
     /// Re-validates in the background; silently updates the cache.
@@ -83,6 +97,12 @@ public final class LicenseManager: @unchecked Sendable {
             self.defaults.set(valid, forKey: "isValid")
             self.defaults.set(Date(), forKey: "lastValidated")
             self.defaults.synchronize()
+            if valid {
+                // Refresh the signed token file so the extension keeps Pro access.
+                LicenseTokenStore.write(licenseKey: key)
+            } else {
+                LicenseTokenStore.delete()
+            }
         }
     }
 
