@@ -51,8 +51,8 @@ final class YAMLAndDMGTests: XCTestCase {
         let ini = "[Server]\nport = 8080\nhost = 0.0.0.0\n"
         let file = try detect(Data(ini.utf8), name: "config.ini")
         let document = try INIRenderer().render(file)
-        // Section 0 = summary, section 1 = [Server]
-        guard case .keyValues(let title, let rows) = document.sections[1] else {
+        // Section 0 = summary, section 1 = raw text, section 2+ = parsed blocks
+        guard case .keyValues(let title, let rows) = document.sections[2] else {
             return XCTFail("expected [Server] section")
         }
         XCTAssertEqual(title, "[Server]")
@@ -67,7 +67,7 @@ final class YAMLAndDMGTests: XCTestCase {
         XCTAssertEqual(type(of: renderer!).id, INIRenderer.id)
 
         let document = try INIRenderer().render(file)
-        guard case .keyValues(let title, let rows) = document.sections[1] else {
+        guard case .keyValues(let title, let rows) = document.sections[2] else {
             return XCTFail("expected [core] section")
         }
         XCTAssertEqual(title, "[core]")
@@ -79,8 +79,8 @@ final class YAMLAndDMGTests: XCTestCase {
         let file = try detect(Data(ini.utf8), name: "config.cfg")
         let document = try INIRenderer().render(file)
 
-        guard case .text(let content, let language) = document.sections.last else {
-            return XCTFail("expected trailing raw text section")
+        guard case .text(let content, let language) = document.sections[1] else {
+            return XCTFail("expected raw text section right after summary")
         }
         XCTAssertEqual(language, "cfg")
         XCTAssertTrue(content.contains("port = 8080"))

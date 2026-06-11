@@ -45,12 +45,6 @@ public struct INIRenderer: PreviewRenderer {
         }
 
         var sections: [PreviewSection] = [.keyValues(title: "Summary", rows: summary)]
-        // Global keys first (no section header), then named sections in order.
-        for sectionName in parsed.order {
-            guard let rows = parsed.sections[sectionName], !rows.isEmpty else { continue }
-            let title = sectionName.isEmpty ? "General" : "[\(sectionName)]"
-            sections.append(.keyValues(title: title, rows: rows))
-        }
 
         // Keep a raw-text section so Pro users get syntax highlighting and
         // formatting parity with other text-based formats.
@@ -61,6 +55,13 @@ public struct INIRenderer: PreviewRenderer {
         default: highlightLanguage = "ini"
         }
         sections.append(.text(content: text, language: highlightLanguage))
+
+        // Global keys first (no section header), then named sections in order.
+        for sectionName in parsed.order {
+            guard let rows = parsed.sections[sectionName], !rows.isEmpty else { continue }
+            let title = sectionName.isEmpty ? "General" : "[\(sectionName)]"
+            sections.append(.keyValues(title: title, rows: rows))
+        }
 
         return PreviewDocument(
             title: file.url.lastPathComponent,
