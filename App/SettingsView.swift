@@ -50,40 +50,20 @@ struct GeneralSettingsView: View {
 }
 
 struct PluginSettingsView: View {
-    // Local mirror so toggles refresh immediately; persistence lives in
-    // RendererSettings (UserDefaults).
-    @State private var enabled: [String: Bool] = [:]
-
     var body: some View {
         Form {
             Section {
                 ForEach(RendererRegistry.all, id: \.idString) { renderer in
-                    Toggle(type(of: renderer).displayName, isOn: binding(for: type(of: renderer).id))
+                    Text(type(of: renderer).displayName)
                 }
             } footer: {
-                Text("Disabled renderers are skipped when generating previews in this app. The Quick Look extensions currently keep their own settings; shared settings require an App Group (planned).")
+                Text("Renderer list")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
         .padding(.vertical, 8)
-        .onAppear {
-            for renderer in RendererRegistry.all {
-                let id = type(of: renderer).id
-                enabled[id] = RendererSettings.isEnabled(id: id)
-            }
-        }
-    }
-
-    private func binding(for id: String) -> Binding<Bool> {
-        Binding(
-            get: { enabled[id] ?? true },
-            set: { value in
-                enabled[id] = value
-                RendererSettings.setEnabled(id: id, value)
-            }
-        )
     }
 }
 
