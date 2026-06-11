@@ -29,13 +29,20 @@ public struct PreviewDocumentView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     header
                     ForEach(Array(document.sections.enumerated()), id: \.offset) { _, section in
-                        SectionView(section: section)
+                        if shouldDisplay(section: section) {
+                            SectionView(section: section)
+                        }
                     }
                 }
                 .padding(20)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
+    }
+
+    private func shouldDisplay(section: PreviewSection) -> Bool {
+        guard case .keyValues(let title, _) = section else { return true }
+        return title?.trimmingCharacters(in: .whitespacesAndNewlines).localizedCaseInsensitiveCompare("General") != .orderedSame
     }
 
     private var header: some View {
