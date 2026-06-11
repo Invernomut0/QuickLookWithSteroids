@@ -14,18 +14,11 @@ public struct SQLiteRenderer: PreviewRenderer {
 
     public func render(_ file: DetectedFile) throws -> PreviewDocument {
         var db: OpaquePointer?
-        // immutable=1 guarantees SQLite never creates -wal/-shm side files,
-        // which would fail (and is unacceptable) inside the sandbox.
-        var components = URLComponents(url: file.url, resolvingAgainstBaseURL: false)!
-        components.scheme = "file"
-        components.queryItems = [URLQueryItem(name: "immutable", value: "1")]
-        let openResult = sqlite3_open_v2(
-            components.url!.absoluteString, &db,
-            SQLITE_OPEN_READONLY | SQLITE_OPEN_URI | SQLITE_OPEN_NOMUTEX, nil
-        )
+        let openResult = openDatabase(url: file.url, db: &db)
         defer { sqlite3_close_v2(db) }
         guard openResult == SQLITE_OK else {
-            throw PreviewError.unreadable("SQLite open failed (code \(openResult))")
+            let message = db.flatMap { sqlite3_errmsg($0) }.map { String(cString: $0) } ?? "unknown"
+            throw PreviewError.unreadable("SQLite open failed (code \(openResult)): \(message)")
         }
 
         var tables: [(name: String, columns: Int, rows: String)] = []
@@ -61,6 +54,29 @@ public struct SQLiteRenderer: PreviewRenderer {
                 ),
             ]
         )
+    }
+
+    private func openDatabase(url: URL, db: inout OpaquePointer?) -> Int32 {
+        // 1) Prefer direct readonly path: this correctly picks up companion
+        // WAL/SHM files when present.
+        var rc = sqlite3_open_v2(
+            url.path, &db,
+            SQLITE_OPEN_READONLY | SQLITE_OPEN_NOMUTEX, nil
+        )
+        if rc == SQLITE_OK { return rc }
+        sqlite3_close_v2(db)
+        db = nil
+
+        // 2) Fallback URI immutable=1 for environments where side files are
+        // unavailable (e.g. stricter sandbox contexts).
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+        components.scheme = "file"
+        components.queryItems = [URLQueryItem(name: "immutable", value: "1")]
+        rc = sqlite3_open_v2(
+            components.url!.absoluteString, &db,
+            SQLITE_OPEN_READONLY | SQLITE_OPEN_URI | SQLITE_OPEN_NOMUTEX, nil
+        )
+        return rc
     }
 
     private func columnCount(db: OpaquePointer?, table: String) -> Int {

@@ -136,6 +136,50 @@ final class RendererTests: XCTestCase {
         XCTAssertEqual(rows[0], ["users", "2", "3"])
     }
 
+    func testSQLiteSchemaWithDbExtension() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("omnipreview-test-\(UUID().uuidString).db")
+        temporaryFiles.append(url)
+
+        var db: OpaquePointer?
+        XCTAssertEqual(sqlite3_open(url.path, &db), SQLITE_OK)
+        sqlite3_exec(db, "CREATE TABLE items (id INTEGER PRIMARY KEY, value TEXT)", nil, nil, nil)
+        sqlite3_exec(db, "INSERT INTO items (value) VALUES ('x')", nil, nil, nil)
+        sqlite3_close_v2(db)
+
+        let file = try FileTypeDetector.detect(url: url)
+        XCTAssertEqual(file.kind, .sqlite)
+
+        let document = try SQLiteRenderer().render(file)
+        guard case .table(_, _, let rows) = document.sections[1] else {
+            return XCTFail("expected tables section")
+        }
+        XCTAssertEqual(rows.first?[0], "items")
+    }
+
+    func testPEMWithoutCertificateStillRendersSummary() throws {
+        let pem = """
+        -----BEGIN PRIVATE KEY-----
+        QUJDRA==
+        -----END PRIVATE KEY-----
+        """
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("omnipreview-test-\(UUID().uuidString).pem")
+        try Data(pem.utf8).write(to: url)
+        temporaryFiles.append(url)
+
+        let file = try FileTypeDetector.detect(url: url)
+        XCTAssertEqual(file.kind, .pemCertificate)
+
+        let document = try CertificateRenderer().render(file)
+        XCTAssertEqual(document.subtitle, "PEM Container")
+        guard case .keyValues(_, let rows) = document.sections[0] else {
+            return XCTFail("expected summary section")
+        }
+        XCTAssertEqual(rows.first { $0.key == "PEM blocks" }?.value, "1")
+        XCTAssertNotNil(rows.first(where: { $0.key == "Note" }))
+    }
+
     // MARK: Source code
 
     func testSourceCodeMetadata() throws {

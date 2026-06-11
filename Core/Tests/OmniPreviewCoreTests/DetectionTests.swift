@@ -58,4 +58,8 @@ final class DetectionTests: XCTestCase {
         // Same bytes without the extension must not match.
         XCTAssertEqual(kind(head: head, name: "model.bin"), .unknown)
     }
+
+    func testSQLiteFallbackByDbExtension() {
+        XCTAssertEqual(kind(head: [], name: "cache.db"), .sqlite)
+    }
 }

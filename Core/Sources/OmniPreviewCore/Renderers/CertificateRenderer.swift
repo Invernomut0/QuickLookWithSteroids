@@ -38,14 +38,32 @@ public struct CertificateRenderer: PreviewRenderer {
         let data = try Data(contentsOf: file.url)
 
         let certificates: [SecCertificate]
+        let pemBlocks: [(label: String, der: Data)]
         if file.kind == .pemCertificate {
-            certificates = Self.pemCertificates(in: data)
+            pemBlocks = Self.pemBlocks(in: data)
+            certificates = Self.pemCertificates(from: pemBlocks)
         } else if let certificate = SecCertificateCreateWithData(nil, data as CFData) {
+            pemBlocks = []
             certificates = [certificate]
         } else {
+            pemBlocks = []
             certificates = []
         }
         guard !certificates.isEmpty else {
+            if file.kind == .pemCertificate {
+                let labels = pemBlocks.map { $0.label }.joined(separator: ", ")
+                return PreviewDocument(
+                    title: file.url.lastPathComponent,
+                    subtitle: "PEM Container",
+                    iconSystemName: "lock.shield",
+                    sections: [.keyValues(title: "Summary", rows: [
+                        KeyValueRow("PEM blocks", "\(pemBlocks.count)"),
+                        KeyValueRow("Block types", labels.isEmpty ? "unknown" : labels),
+                        KeyValueRow("File size", Format.bytes(file.fileSize)),
+                        KeyValueRow("Note", "No parseable X.509 certificates found in this PEM"),
+                    ])]
+                )
+            }
             throw PreviewError.corruptFile("no parseable certificates found")
         }
 
@@ -64,21 +82,39 @@ public struct CertificateRenderer: PreviewRenderer {
     }
 
     static func pemCertificates(in data: Data) -> [SecCertificate] {
-        guard let text = String(data: data, encoding: .utf8) else { return [] }
-        var certificates: [SecCertificate] = []
-        var scanning = text[...]
-        while let begin = scanning.range(of: "-----BEGIN CERTIFICATE-----"),
-              let end = scanning.range(of: "-----END CERTIFICATE-----") {
-            let base64 = scanning[begin.upperBound..<end.lowerBound]
-                .replacingOccurrences(of: "\n", with: "")
-                .replacingOccurrences(of: "\r", with: "")
-            if let der = Data(base64Encoded: base64),
-               let certificate = SecCertificateCreateWithData(nil, der as CFData) {
-                certificates.append(certificate)
-            }
-            scanning = scanning[end.upperBound...]
+        pemCertificates(from: pemBlocks(in: data))
+    }
+
+    static func pemCertificates(from blocks: [(label: String, der: Data)]) -> [SecCertificate] {
+        let certificateLabels: Set<String> = ["CERTIFICATE", "TRUSTED CERTIFICATE", "X509 CERTIFICATE"]
+        return blocks.compactMap { block in
+            guard certificateLabels.contains(block.label.uppercased()) else { return nil }
+            return SecCertificateCreateWithData(nil, block.der as CFData)
         }
-        return certificates
+    }
+
+    static func pemBlocks(in data: Data) -> [(label: String, der: Data)] {
+        guard let text = String(data: data, encoding: .utf8) else { return [] }
+        guard let regex = try? NSRegularExpression(
+            pattern: "-----BEGIN ([A-Z0-9 ]+)-----([\\s\\S]*?)-----END \\1-----",
+            options: [.caseInsensitive]
+        ) else { return [] }
+
+        let ns = text as NSString
+        let full = NSRange(location: 0, length: ns.length)
+        var blocks: [(label: String, der: Data)] = []
+        regex.enumerateMatches(in: text, options: [], range: full) { match, _, _ in
+            guard let match,
+                  let labelRange = Range(match.range(at: 1), in: text),
+                  let bodyRange = Range(match.range(at: 2), in: text) else { return }
+
+            let label = String(text[labelRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let base64 = String(text[bodyRange]).components(separatedBy: .whitespacesAndNewlines).joined()
+            if let der = Data(base64Encoded: base64) {
+                blocks.append((label, der))
+            }
+        }
+        return blocks
     }
 
     static func rows(for certificate: SecCertificate) -> [KeyValueRow] {

@@ -101,6 +101,7 @@ public enum FileTypeDetector {
 
         // MARK: Databases & data
         if starts("SQLite format 3\0") { return .sqlite }
+        if ["sqlite", "sqlite3", "db", "db3"].contains(ext) { return .sqlite }
         if starts("PAR1") { return .dataFile(format: "Parquet") }
         if starts("ARROW1") { return .dataFile(format: "Arrow") }
         if at(8, "DUCK") { return .dataFile(format: "DuckDB") }
