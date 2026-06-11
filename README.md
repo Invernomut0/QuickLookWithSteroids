@@ -6,6 +6,8 @@ OmniPreview transforms Quick Look into a powerful universal file explorer, bring
 
 Built entirely in Swift with zero third-party runtime dependencies, OmniPreview feels like a natural extension of macOS. Press Space in Finder and instantly explore archives, databases, AI models, 3D assets, scientific datasets, source code with full syntax highlighting, rendered Markdown, and much more — without launching another application.
 
+**📋 [Complete Supported File Format List](SUPPORTED_FORMATS.md)** — 29+ file families with test coverage status, Free/Pro tiers, and system precedence notes.
+
 ## Latest Update (June 2026)
 
 - **Image metadata visibility hardened**: image previews now keep the metadata panel visible even when some ImageIO properties are partially unavailable.
