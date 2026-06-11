@@ -29,6 +29,21 @@ public final class LicenseManager: @unchecked Sendable {
 
     private init() {
         defaults = UserDefaults(suiteName: Self.defaultsSuite) ?? .standard
+        migrateTokenFileIfNeeded()
+    }
+
+    /// If the host app has a valid license in UserDefaults but the token file
+    /// is missing (e.g. first launch after upgrading to token-based sharing),
+    /// write the token immediately so Quick Look extensions see Pro status.
+    private func migrateTokenFileIfNeeded() {
+        guard
+            defaults.bool(forKey: "isValid"),
+            let lastValidated = defaults.object(forKey: "lastValidated") as? Date,
+            Date().timeIntervalSince(lastValidated) < Self.gracePeriod,
+            let key = defaults.string(forKey: "licenseKey"),
+            !LicenseTokenStore.isValid()
+        else { return }
+        LicenseTokenStore.write(licenseKey: key)
     }
 
     // MARK: Public API
