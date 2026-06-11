@@ -203,42 +203,36 @@ YAML files get additional structure detection: **Kubernetes manifests** (kind, n
 
 ## 3D, CAD and GIS
 
-| Format | Preview |
+OmniPreview is useful out of the box. The table below follows a strict policy:
+
+- listed in **Free/Pro** = tested and currently reliable
+- not fully test-covered or not consistently guaranteed in Finder = moved to **Work in Progress**
 |---|---|
 | STL, OBJ, PLY, USDZ | **Interactive SceneKit viewer** — rotate, zoom, orbit with mouse/trackpad — plus geometry statistics |
 | GLB, glTF | Node, mesh, material, animation, texture counts; generator and version |
-| DXF | Entity type counts (LINE, CIRCLE, ARC, TEXT, INSERT…), AutoCAD version |
-| DWG | Format version |
+| ZIP, TAR, Gzip/TGZ listing | ✓ | |
+| DMG + archive metadata families (7z/RAR/ISO/DEB/RPM/PKG/CAB/MSI/CFB) | ✓ | |
 | STEP | Model name, AP schema, entity count |
-| IGES | Directory entry and entity counts |
 | GeoJSON | Feature count by geometry type, property keys, bounding box |
-| KML / KMZ | Placemark, folder, point, line and polygon counts |
+| **Color & Formatting** — syntax highlighting + formatted Markdown | | ✓ |
 | Shapefile | Shape type, bounding box |
-
 ---
 
-## Virtual Machines, Containers and System Files
+| INI/CFG + YAML structured view | ✓ | |
+| Torrent + Terraform state | ✓ | |
+| GGUF / Safetensors / NPY / NPZ inspection | | ✓ |
+| QOI texture + QCOW2 metadata paths | | ✓ |
 
-| Format | Preview |
-|---|---|
-| QCOW2 | Virtual disk capacity, QCOW version |
-| VMDK | Virtual capacity, format version |
-| VHDX | Creator application |
-| Torrent | Name, total size, trackers, piece size, full file list |
-| Terraform state | Version, resource count by type |
-| X.509 certificate (PEM, DER, CER, CRT) | Subject, issuer, serial, validity with expiry flag |
-| PKCS#12 / PFX | Container identification |
-| Fonts (TTF, OTF, TTC) | Family, style, glyph count, live specimen at multiple sizes |
-| WOFF, WOFF2 | Wrapped font format, table count, uncompressed size |
+### Work in Progress (implemented or partial, not guaranteed yet)
 
----
+- Video and common image preview paths in Finder (macOS default Quick Look can take precedence; e.g. `.mp4`)
+- Office/eBook advanced workflows
+- ONNX, scientific datasets, full app/package matrix
+- Extended 3D/CAD/GIS/media matrices not yet fully promoted as guaranteed product promises
 
-## Folder Preview
+### Transparency note
 
-Press Space on any folder to see a **Finder-style list view** with:
-
-- Expand/collapse disclosure triangles
-- Name, **Kind**, Size and Date Modified columns
+For some Apple-native file families (especially media/images/documents), OmniPreview may support parsing in code while Finder still shows the default macOS preview depending on UTI precedence and system policy.
 - File type icons (folders in accent color, files by type)
 - Relative dates — "Today at 14:32", "Yesterday at 09:15", weekday name within the last week
 - Status bar with item count
