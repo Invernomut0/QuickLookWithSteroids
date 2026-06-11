@@ -1,5 +1,6 @@
 import Foundation
 import CryptoKit
+import Darwin
 
 /// Writes and reads a signed license token to a shared path on disk.
 ///
@@ -11,12 +12,32 @@ import CryptoKit
 /// Security model: the token is HMAC-SHA256 signed. Any modification to the
 /// license key or expiry date will break the signature and the token is rejected.
 /// The HMAC secret is split to make static binary analysis marginally harder.
+///
+/// IMPORTANT — sandbox path redirect:
+/// `FileManager.default.homeDirectoryForCurrentUser` is redirected by the macOS
+/// App Sandbox to the container path (e.g. `~/Library/Containers/<id>/Data`).
+/// To get the *real* user home we read the POSIX passwd database via `getpwuid()`,
+/// which is not affected by sandbox virtualisation.
 public enum LicenseTokenStore {
 
     // MARK: - Path
 
+    /// Real user home directory, bypassing the sandbox container redirect.
+    static var realHomeURL: URL {
+        if let pw = getpwuid(getuid()), let dir = pw.pointee.pw_dir {
+            return URL(fileURLWithPath: String(cString: dir), isDirectory: true)
+        }
+        // Fallback: strip the known container suffix if present.
+        let containerHome = FileManager.default.homeDirectoryForCurrentUser
+        let path = containerHome.path
+        if let range = path.range(of: "/Library/Containers/") {
+            return URL(fileURLWithPath: String(path[..<range.lowerBound]), isDirectory: true)
+        }
+        return containerHome
+    }
+
     static var tokenURL: URL {
-        FileManager.default.homeDirectoryForCurrentUser
+        realHomeURL
             .appendingPathComponent("Library/Application Support/OmniPreview/license.token")
     }
 
