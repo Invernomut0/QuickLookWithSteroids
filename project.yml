@@ -35,6 +35,9 @@ targets:
     type: application
     platform: macOS
     sources: [App]
+    resources:
+      - path: App/Assets.xcassets
+        type: folder
     dependencies:
       - package: OmniPreviewCore
         product: OmniPreviewCore
@@ -56,6 +59,7 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: OmniPreview
+        CFBundleIconName: AppIcon
         CFBundleShortVersionString: "0.3.4"
         CFBundleVersion: "7"
         NSHumanReadableCopyright: "© 2026 Lorenzo Vismara — MIT License"

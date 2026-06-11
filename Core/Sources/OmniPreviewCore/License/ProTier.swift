@@ -29,26 +29,28 @@ public enum ProTier {
 
     /// Human-readable names shown in the "Pro Features" list in Settings.
     public static let proFeatureDescriptions: [(id: String, name: String, icon: String, detail: String)] = [
+        // ML & AI
+        ("gguf",        "GGUF Models",              "cpu",                       "LLM model inspection: architecture, quantization, tensor count"),
+        ("safetensors", "Safetensors Checkpoints",  "brain",                     "ML tensor inspection: dtype, shapes, parameter count"),
+        ("onnx",        "ONNX Models",              "brain",                     "Neural network models: producer, IR version, domain metadata"),
+        ("npy",         "NumPy Arrays & NPZ",       "square.grid.3x3",           "Scientific arrays: dtype, shape, element count; NPZ per-file table"),
+        
+        // Advanced renderers
+        ("app-package", "App Packages",             "apps.iphone",               "JAR, APK, IPA metadata; PyTorch & NPZ storage inspection"),
+        ("model3d",     "3D Models",                "cube",                      "Interactive viewer for STL, OBJ, PLY, GLB, USDZ; rotate & zoom"),
+        ("texture",     "GPU Textures",             "photo.on.rectangle",        "QOI, DDS, TGA, KTX/KTX2, Radiance HDR dimensions & metadata"),
+        ("data-file",   "Scientific Data",          "chart.bar.doc.horizontal",  "Parquet, Arrow, HDF5, NetCDF, MATLAB, FITS inspection"),
+        ("disk-image",  "Virtual Disk Images",      "externaldrive",             "QCOW2, VMDK, VHDX metadata and capacity inspection"),
+        
+        // Documents & Media
+        ("office",      "Office Documents",         "doc.text",                  "DOCX/XLSX/PPTX/ODT/ODS/ODP: title, author, stats, thumbnails"),
+        ("ebook",       "eBook Formats",            "book.closed",               "EPUB with cover image, MOBI, AZW3, FB2, CBZ inspection"),
+        ("media",       "Audio & Video",            "film",                      "Duration, codecs, resolution, bitrate, ID3 tags extraction"),
+        
         // UI-level features
-        ("syntax-highlighting", "Syntax Highlighting", "paintbrush.pointed.fill",
-         "Color-coded tokens for 50+ languages: Swift, Python, JS, Rust, Go, JSON, YAML…"),
-        ("markdown-rendering",  "Markdown Rendering",  "text.badge.checkmark",
-         "Headings, code blocks with highlighting, tables, lists, blockquotes"),
-        ("video-trim",          "Video Trim & Export", "scissors",
-         "Non-destructive trim with AVKit, export at full quality via NSSavePanel"),
-        // Renderer-level features
-        ("gguf",        "GGUF Models",         "cpu",                  "Architecture, quantization, tensor count, all metadata"),
-        ("safetensors", "Safetensors Models",  "brain",                "Tensor list, dtypes, shapes, parameter count"),
-        ("onnx",        "ONNX Models",         "brain",                "Producer, IR version, domain"),
-        ("npy",         "NumPy / NPZ",         "square.grid.3x3",      "Array dtype, shape, element count; per-array table for NPZ"),
-        ("app-package", "App Packages",        "apps.iphone",          "JAR/APK/IPA metadata; PyTorch checkpoint storage stats"),
-        ("model3d",     "3D Models",           "cube",                 "Interactive SceneKit viewer — rotate, zoom, orbit"),
-        ("office",      "Office Documents",    "doc.text",             "DOCX / XLSX / PPTX / ODT — title, author, stats, thumbnail"),
-        ("ebook",       "eBooks",              "book.closed",          "EPUB with cover image, MOBI, AZW3, FB2, CBZ"),
-        ("media",       "Audio & Video",       "film",                 "Duration, codecs, resolution, bitrate, ID3 tags"),
-        ("data-file",   "Scientific Data",     "chart.bar.doc.horizontal", "Parquet, HDF5, NetCDF dimensions, FITS header, MATLAB"),
-        ("disk-image",  "VM Disk Images",      "externaldrive",        "QCOW2 / VMDK virtual capacity, VHDX creator"),
-        ("texture",     "GPU Textures",        "photo.on.rectangle",   "QOI, DDS, TGA, KTX/KTX2, Radiance HDR dimensions & format"),
+        ("syntax-highlighting", "Syntax Highlighting", "paintbrush.pointed.fill", "50+ languages with color-coded tokens: Swift, Python, JS, Rust, Go, etc."),
+        ("markdown-rendering",  "Markdown Rendering",  "text.badge.checkmark",   "Full block rendering: headings, code blocks, tables, lists, blockquotes"),
+        ("video-trim",          "Video Trim & Export", "scissors",                "Non-destructive trim with AVKit, export at full resolution"),
     ]
 
     public static func isPro(rendererID: String) -> Bool {

@@ -10,12 +10,8 @@ struct OmniPreviewApp: App {
 
     var body: some Scene {
         // LSUIElement=true suppresses the Dock icon.
-        // The tester window is opened on demand from the menu.
-        Window("Preview Tester", id: "tester") {
-            ContentView()
-                .frame(minWidth: 560, minHeight: 420)
-        }
-        .commandsRemoved()
+        // The tester window is opened on demand from the menu bar only.
+        // (Removed: automatic Window("Preview Tester") at app launch)
 
         MenuBarExtra("OmniPreview", systemImage: "eye", isInserted: $showMenuBarIcon) {
             MenuBarMenu()
