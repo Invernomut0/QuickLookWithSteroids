@@ -48,6 +48,8 @@ struct SyntaxHighlighter {
         case "xml", "html",
              "svg", "xhtml":   tokenizeXML(source, into: result)
         case "yaml":            tokenizeYAML(source, into: result)
+           case "ini", "cfg", "conf", "toml":
+                              tokenizeINIAndTOML(source, language: lang, into: result)
         case "sql":             tokenizeSQL(source, into: result)
         default:                tokenizeGeneric(source, language: lang, into: result)
         }
@@ -136,6 +138,46 @@ struct SyntaxHighlighter {
         apply(#"--.*"#, to: result, color: commentColor)
         apply(#"/\*[\s\S]*?\*/"#, to: result, options: [.dotMatchesLineSeparators], color: commentColor)
     }
+
+        // MARK: INI / TOML
+
+        private static func tokenizeINIAndTOML(_ source: String, language: String,
+                                 into result: NSMutableAttributedString) {
+          // Numbers and booleans/null first (lower priority)
+          apply(#"\b-?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b"#,
+              to: result, color: numberColor)
+          apply(#"\b(?:true|false|null)\b"#,
+              to: result, options: [.caseInsensitive], color: keywordColor)
+
+          // TOML date/time literals
+          if language == "toml" {
+            apply(#"\b\d{4}-\d{2}-\d{2}(?:[Tt ]\d{2}:\d{2}:\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?\b"#,
+                to: result, color: typeColor)
+          }
+
+          // Strings
+          apply(#"""(?:[^"\\]|\\.)*""#, to: result, color: stringColor)
+          apply(#"'(?:[^'\\]|\\.)*'"#, to: result, color: stringColor)
+
+          // Section/table headers: [section] / [table] / [[array.table]]
+          apply(#"(?m)^\s*(\[{1,2}[^\]\n]+\]{1,2})\s*$"#,
+              to: result, options: [.anchorsMatchLines], group: 1, color: typeColor)
+
+          // Keys at line start before = or :
+          apply(#"(?m)^\s*([A-Za-z0-9_.-]+)\s*(?==|:)"#,
+              to: result, options: [.anchorsMatchLines], group: 1, color: keyColor)
+
+          // Operators (= and :) used in assignments
+          apply(#"(?m)^\s*[A-Za-z0-9_.-]+\s*([=:])"#,
+              to: result, options: [.anchorsMatchLines], group: 1, color: operatorColor)
+
+          // Comments highest priority
+          if language == "toml" {
+            apply(#"#.*"#, to: result, color: commentColor)
+          } else {
+            apply(#"(?m)\s[;!].*$|^[;!].*$|#.*"#, to: result, options: [.anchorsMatchLines], color: commentColor)
+          }
+        }
 
     // MARK: Generic (C-family, Python, Shell, …)
 
@@ -325,9 +367,11 @@ struct SyntaxHighlighter {
 
     private static func lineCommentPattern(for language: String) -> String? {
         switch language {
-        case "python","ruby","shell","bash","zsh","fish","toml","ini","cfg","conf",
+        case "python","ruby","shell","bash","zsh","fish","toml",
              "yaml","r","nim","elixir","crystal","graphql","gql":
             return "#.*"
+        case "ini","cfg","conf":
+            return #"(?:#|;|!).*"#
         case "lua","haskell","hs","sql": return "--.*"
         case "scss","sass","less","css","html","xml","svg": return nil  // block-only
         default: return "//.*"  // C-family and everything else
