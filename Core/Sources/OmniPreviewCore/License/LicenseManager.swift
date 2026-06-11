@@ -11,6 +11,7 @@ public final class LicenseManager: @unchecked Sendable {
     // MARK: Constants
 
     static let productPermalink = "lghiqc"
+    static let productID = "PrbYxrki-uQ8KxwsawhkDQ=="
     static let defaultsSuite    = "com.omnipreview.license"
     static let cacheValidity: TimeInterval = 7  * 24 * 3600   // 7 days
     static let gracePeriod:   TimeInterval = 30 * 24 * 3600   // 30 days
@@ -95,21 +96,36 @@ public final class LicenseManager: @unchecked Sendable {
             s.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? s
         }
         request.httpBody = [
-            "product_permalink=\(safe(Self.productPermalink))",
+            "product_id=\(safe(Self.productID))",
             "license_key=\(safe(key))",
             "increment_uses_count=false",
         ].joined(separator: "&").data(using: .utf8)
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
-        if let http = response as? HTTPURLResponse, http.statusCode == 404 {
-            // Gumroad returns 404 for invalid keys — treat as "not valid"
-            return false
+        if let http = response as? HTTPURLResponse {
+            print("🔐 License API Response: HTTP \(http.statusCode)")
+            if let jsonObj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                print("   Response: \(jsonObj)")
+            }
+            
+            if http.statusCode == 404 {
+                print("   → License key not found (404)")
+                return false
+            }
+            
+            if http.statusCode >= 500 {
+                throw LicenseError.serverError(http.statusCode)
+            }
         }
+        
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw LicenseError.invalidResponse
         }
-        return json["success"] as? Bool ?? false
+        
+        let isValid = json["success"] as? Bool ?? false
+        print("🔐 License validation result: \(isValid)")
+        return isValid
     }
 }
 
