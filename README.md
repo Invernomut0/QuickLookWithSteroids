@@ -274,7 +274,45 @@ OmniPreview is built on a security-first architecture:
 
 ---
 
-## Build and Install
+## Install (Pre-built DMG)
+
+1. Download `OmniPreview-macOS.dmg` from the [latest release](https://github.com/Invernomut0/QuickLookWithSteroids/releases/latest)
+2. Open the DMG and drag **OmniPreview** to your Applications folder
+3. Launch OmniPreview from Applications
+
+### macOS security prompt ("app can't be opened")
+
+Because OmniPreview is distributed outside the Mac App Store, macOS may block the first launch. Fix it with one of these methods:
+
+**Option A — Double-click `Fix Permissions.command`** (included in the DMG)
+> A dialog appears asking for confirmation, then your password. Done in 10 seconds.
+
+**Option B — Terminal**
+```bash
+sudo xattr -cr /Applications/OmniPreview.app
+```
+
+**Option C — System Settings**
+> System Settings → Privacy & Security → scroll down → click **Open Anyway**
+
+### Enable Quick Look extensions
+
+After the first launch:
+
+**System Settings → Privacy & Security → Extensions → Quick Look**
+→ enable both **OmniPreview Preview** and **OmniPreview Thumbnails**
+
+Then reset the Quick Look cache:
+
+```bash
+qlmanage -r && qlmanage -r cache
+```
+
+Press Space on any supported file in Finder. OmniPreview runs as a **menu bar agent** (eye icon) — no Dock icon, no Command-Tab entry.
+
+---
+
+## Build from Source
 
 ```bash
 git clone https://github.com/Invernomut0/QuickLookWithSteroids.git
@@ -283,19 +321,6 @@ cd QuickLookWithSteroids
 scripts/build.sh                    # generate xcodeproj and compile
 open build/Build/Products/Debug/OmniPreview.app
 ```
-
-After the first launch, enable the extensions:
-
-**System Settings → Privacy & Security → Extensions → Quick Look**
-→ enable both **OmniPreview Preview** and **OmniPreview Thumbnails**
-
-Then force Quick Look to pick up the new providers:
-
-```bash
-qlmanage -r && qlmanage -r cache
-```
-
-Press Space on any supported file in Finder. The app runs as a **menu bar agent** (eye icon) — no Dock icon, no Command-Tab entry.
 
 ---
 
