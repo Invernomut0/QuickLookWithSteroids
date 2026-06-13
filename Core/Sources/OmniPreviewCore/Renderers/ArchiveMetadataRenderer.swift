@@ -179,12 +179,86 @@ public struct ArchiveMetadataRenderer: PreviewRenderer {
         if !partitionRows.isEmpty {
             sections.append(.keyValues(title: "Partitions", rows: partitionRows))
         }
+
+        // Attempt to mount the DMG read-only and list its contents.
+        let fileEntries = Self.listDMGContents(file.url)
+        if !fileEntries.isEmpty {
+            sections.append(.fileTree(title: "Contents", entries: fileEntries))
+        }
+
         return PreviewDocument(
             title: file.url.lastPathComponent,
             subtitle: "Apple Disk Image",
             iconSystemName: "externaldrive",
             sections: sections
         )
+    }
+
+    /// Mounts the DMG temporarily (read-only, no Finder visibility) and
+    /// enumerates the volume contents, then immediately detaches it.
+    /// Returns an empty array if mounting fails (e.g. encrypted DMG, sandbox
+    /// restriction, or insufficient permissions).
+    private static func listDMGContents(_ url: URL) -> [ArchiveEntry] {
+        let mountPoint = FileManager.default.temporaryDirectory
+            .appendingPathComponent("omnipreview-dmg-\(UUID().uuidString)")
+
+        // Mount: read-only, no Finder visibility, no verification (faster).
+        let attachProcess = Process()
+        attachProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
+        attachProcess.arguments = [
+            "attach", url.path,
+            "-readonly", "-nobrowse", "-noverify",
+            "-mountpoint", mountPoint.path
+        ]
+        attachProcess.standardOutput = FileHandle.nullDevice
+        attachProcess.standardError = FileHandle.nullDevice
+
+        do {
+            try attachProcess.run()
+            attachProcess.waitUntilExit()
+        } catch {
+            return []
+        }
+        guard attachProcess.terminationStatus == 0 else { return [] }
+
+        defer {
+            // Always detach — even if enumeration fails.
+            let detach = Process()
+            detach.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
+            detach.arguments = ["detach", mountPoint.path, "-quiet", "-force"]
+            detach.standardOutput = FileHandle.nullDevice
+            detach.standardError = FileHandle.nullDevice
+            try? detach.run()
+            detach.waitUntilExit()
+        }
+
+        let fm = FileManager.default
+        guard let enumerator = fm.enumerator(
+            at: mountPoint,
+            includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey, .contentModificationDateKey],
+            options: [.skipsHiddenFiles]
+        ) else { return [] }
+
+        var entries: [ArchiveEntry] = []
+        let mountPath = mountPoint.path
+        let cap = 500 // Don't enumerate huge volumes forever.
+
+        while let itemURL = enumerator.nextObject() as? URL, entries.count < cap {
+            let relativePath = String(itemURL.path.dropFirst(mountPath.count + 1))
+            guard !relativePath.isEmpty else { continue }
+            let values = try? itemURL.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey, .contentModificationDateKey])
+            let isDir = values?.isDirectory ?? false
+            let size = UInt64(values?.fileSize ?? 0)
+            let modified = values?.contentModificationDate
+            entries.append(ArchiveEntry(
+                path: relativePath,
+                isDirectory: isDir,
+                uncompressedSize: size,
+                compressedSize: 0,
+                modified: modified
+            ))
+        }
+        return entries
     }
 
     /// Unix ar archives (.deb packages, .a static libraries): 60-byte
