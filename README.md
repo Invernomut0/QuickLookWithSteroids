@@ -62,8 +62,6 @@ OmniPreview is useful out of the box. The free tier covers every essential devel
 | Database dumps & Terraform state | ✓ | |
 | CAD — DXF, STEP, DWG, IGES | ✓ | |
 | Image annotation editor (pen, line, rectangle, text, PNG export) | ✓ | |
-| **Video trim & export** (AVKit trim UI + full-quality export) | | ✓ |
-| **Office — DOCX, XLSX, PPTX, ODT…** | | ✓ |
 | **eBooks — EPUB with cover, MOBI, AZW3, FB2, CBZ** | | ✓ |
 | **Audio & Video — codecs, resolution, bitrate, tags** | | ✓ |
 | **3D models — interactive SceneKit viewer** | | ✓ |
@@ -110,7 +108,6 @@ Preview archive structures without extracting a single file. Zip bombs and archi
 | Format | Preview |
 |---|---|
 | PDF | Page count and sizes, document info, bookmarks, encryption status |
-| DOCX, XLSX, PPTX | Title, author, page/word/slide counts, sheet names, embedded thumbnail |
 | ODT, ODS, ODP | Title, author, modification date, statistics |
 | EPUB | Cover image, title, author, language, spine count |
 | MOBI, AZW3 | Title, database name, record count |
@@ -152,8 +149,6 @@ YAML files get additional structure detection: **Kubernetes manifests** (kind, n
 
 | Format | Preview |
 |---|---|
-| PNG, JPEG, TIFF, GIF, WebP | Picture + dimensions, color space, DPI, frame count |
-| HEIC, AVIF | Picture + image metadata |
 | PSD, PSB | Photoshop document metadata |
 | EXR | High dynamic range image metadata |
 | JPEG XL | JXL image metadata |
@@ -191,15 +186,6 @@ YAML files get additional structure detection: **Kubernetes manifests** (kind, n
 | NPY | Data type, shape, element count, memory order (C / Fortran) |
 | NPZ | Per-array dtype, shape and name table |
 | PyTorch checkpoint (.pt, .pth) | Tensor storage count and total data size |
-
----
-
-## Media
-
-| Format | Preview |
-|---|---|
-| MP3, FLAC, WAV, OGG, M4A, AAC | Duration, codecs, sample rate, channels, bitrate, ID3/MP4 tags |
-| MP4, MOV, AVI, MKV, WebM | Duration, video/audio codecs, resolution, frame rate, bitrate, metadata tags |
 
 ---
 
