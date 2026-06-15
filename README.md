@@ -2,7 +2,7 @@
 
 ### The Ultimate Quick Look Extension for macOS
 
-![OmniPreview — Preview everything. Everywhere. Instantly.](docs/screenshot.png)
+![OmniPreview — Preview everything. Everywhere. Instantly.](docs/main.png)
 
 OmniPreview transforms Quick Look into a powerful universal file explorer, bringing rich previews, syntax-highlighted source code, structured metadata inspection, and interactive 3D viewers to hundreds of file formats that macOS cannot preview natively.
 
