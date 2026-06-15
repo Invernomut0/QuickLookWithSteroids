@@ -62,7 +62,7 @@ targets:
         CFBundleIconName: AppIcon
         CFBundleShortVersionString: "0.3.4"
         CFBundleVersion: "7"
-        NSHumanReadableCopyright: "© 2026 Lorenzo Vismara — MIT License"
+        NSHumanReadableCopyright: "© 2026 Invernomuto — MIT License"
         LSMinimumSystemVersion: "13.0"
         LSApplicationCategoryType: public.app-category.utilities
         LSUIElement: true
