@@ -1,0 +1,26 @@
+╔══════════════════════════════════════════════════════════╗
+║             OmniPreview — Installation                   ║
+╠══════════════════════════════════════════════════════════╣
+║                                                          ║
+║  1. Drag OmniPreview.app to Applications →               ║
+║                                                          ║
+║  2. If macOS blocks the first launch, open Terminal      ║
+║     (search "Terminal" in Spotlight) and paste:          ║
+║                                                          ║
+║     sudo xattr -cr /Applications/OmniPreview.app         ║
+║                                                          ║
+║     Press Enter, type your password, press Enter again.  ║
+║                                                          ║
+║  3. Open OmniPreview from Applications.                  ║
+║                                                          ║
+║  4. Enable Quick Look extensions:                        ║
+║     System Settings → Privacy & Security → Extensions    ║
+║     → Quick Look → enable both OmniPreview extensions    ║
+║                                                          ║
+║  5. Reset Quick Look cache (paste in Terminal):          ║
+║                                                          ║
+║     qlmanage -r && qlmanage -r cache                     ║
+║                                                          ║
+║  6. Done! Press Space on any file in Finder.             ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
