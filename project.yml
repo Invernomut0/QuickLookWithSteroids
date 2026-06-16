@@ -35,9 +35,6 @@ targets:
     type: application
     platform: macOS
     sources: [App]
-    resources:
-      - path: App/Assets.xcassets
-        type: folder
     dependencies:
       - package: OmniPreviewCore
         product: OmniPreviewCore
