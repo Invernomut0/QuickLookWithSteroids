@@ -11,7 +11,12 @@ struct OmniPreviewApp: App {
     var body: some Scene {
         // LSUIElement=true suppresses the Dock icon.
         // The tester window is opened on demand from the menu bar only.
-        // (Removed: automatic Window("Preview Tester") at app launch)
+
+        Window("Preview Tester", id: "tester") {
+            ContentView()
+                .frame(minWidth: 500, minHeight: 400)
+        }
+        .handlesExternalEvents(matching: ["tester"])
 
         MenuBarExtra("OmniPreview", systemImage: "eye", isInserted: $showMenuBarIcon) {
             MenuBarMenu()
@@ -43,10 +48,10 @@ struct MenuBarMenu: View {
         Divider()
 
         Button("About OmniPreview") {
-            // Do NOT call NSApp.activate before the panel — for LSUIElement
-            // apps, activating restores the last-open window (Settings),
-            // which is the bug. The About panel works without activation.
+            let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+            let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
             NSApp.orderFrontStandardAboutPanel(options: [
+                .version: "\(version) (\(build))",
                 .credits: NSAttributedString(
                     string: "Rich Quick Look previews for archives, ML models, databases, certificates, and more.",
                     attributes: [.font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)]
